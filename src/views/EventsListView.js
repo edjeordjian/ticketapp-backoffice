@@ -104,15 +104,6 @@ export default function EventsListView(props) {
            width: "100%",
            alignItems: "center"
          }}>
-          <Box style={styles.btnContainer}>
-            <BasicBtn label={"Crear evento"}
-                      onClick={onCreateEventClicked} />
-          </Box>
-
-          <Box style={{ marginLeft: "auto" }}>
-            <BasicBtn label={"Miembros de staff"}
-                      onClick={navigateToAddGroupMemberScreen} />
-          </Box>
         </div>
 
         <BlankLine/>

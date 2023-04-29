@@ -45,15 +45,10 @@ export default function DashboardDrawer() {
               padding: '15px',
               display: 'flex',
               justifyContent: 'space-around'}}>
-                <img referrerPolicy="no-referrer" style={{
-                  height: '50px',
-                  width: '50px',
-                  borderRadius: '10px',
-                  padding: '5px'}} src={userData.photoURL}/>
                 <p style={{
                   color: '#1F1F22',
                   padding: '5px',
-                  fontSize: '12px'}}>{userData.email}</p>
+                  fontSize: '12px'}}>Administrador</p>
             </Toolbar>
             <Divider/>
             <List>

@@ -64,7 +64,8 @@ const SignInButton = (props) => {
             } );
 
 
-        if (firebaseResponse.error && firebaseResponse.error.includes("auth/user-not-found")) {
+        if (firebaseResponse.error
+            && firebaseResponse.error.includes("auth/user-not-found")) {
             firebaseResponse = await createUserWithEmailAndPassword(auth,
                 emailRef.current,
                 passwordRef.current
@@ -96,7 +97,8 @@ const SignInButton = (props) => {
         };
 
         const response = await postTo(`${BACKEND_HOST}${SIGN_IN_URL}`,
-                                      requestBody);
+                                      requestBody,
+                                      idToken);
 
         if (response.error) {
             SweetAlert2.fire({
