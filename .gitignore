@@ -1,0 +1,19 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+node_modules
+
+# Env files
+.env
+
+# JetBrains
+/.idea
+.prettierrc
+
+# misc
+.DS_Store
+
+package-lock.json
+
+# production
+/build
