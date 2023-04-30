@@ -1,0 +1,56 @@
+{
+  "name": "ticket-app",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@emotion/react": "11.10.6",
+    "@emotion/styled": "11.10.6",
+    "@fullcalendar/core": "6.1.5",
+    "@fullcalendar/daygrid": "6.1.5",
+    "@fullcalendar/interaction": "6.1.5",
+    "@fullcalendar/react": "6.1.5",
+    "@fullcalendar/timegrid": "6.1.5",
+    "@mui/base": "5.0.0-alpha.124",
+    "@mui/icons-material": "5.11.11",
+    "@mui/material": "5.11.15",
+    "@mui/x-date-pickers": "6.0.4",
+    "@react-google-maps/api": "2.18.1",
+    "client-oauth2": "4.3.3",
+    "date-fns": "2.29.3",
+    "dayjs": "1.11.7",
+    "dotenv": "16.0.3",
+    "firebase": "9.19.1",
+    "lodash": "4.17.21",
+    "moment": "2.29.4",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-google-places-autocomplete": "3.4.0",
+    "react-html-parser": "2.0.2",
+    "react-quill": "2.0.0",
+    "react-responsive-carousel": "3.2.23",
+    "react-router-dom": "6.10.0",
+    "react-scripts": "4.0.3",
+    "sweetalert2": "11.7.3",
+    "web-vitals": "2.1.4"
+  },
+  "scripts": {
+    "start": "PORT=4479 react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "eslint-plugin-react-hooks": "4.6.0"
+  }
+}
