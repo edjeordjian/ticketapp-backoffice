@@ -4,7 +4,7 @@ import {
   EVENTS_PATH, LOG_IN_PATH
 } from "../../constants/URLs";
 import CreateEventView from "../../views/CreateEventView";
-import EventsListView from "../../views/EventsListView";
+import ReportsListView from "../../views/ReportsListView";
 import SignInSide from "../../components/SignIn";
 import {ViewEventView} from "../../views/ViewEventView";
 import { AddGroupMember } from "../../views/AddGroupMember";
@@ -14,11 +14,11 @@ const LoggedRouter = () => {
     return (
         <div>
             <Routes>
-                <Route exact path="/" element={<EventsListView/>} />
+                <Route exact path="/" element={<ReportsListView/>} />
 
                 <Route exact path={LOG_IN_PATH} element={<SignInSide />} />
 
-                <Route exact path={EVENTS_PATH} element={<EventsListView/>}/>
+                <Route exact path={EVENTS_PATH} element={<ReportsListView/>}/>
 
                 <Route exact path={EVENT_CREATE_PATH} element={<CreateEventView/>}/>
 

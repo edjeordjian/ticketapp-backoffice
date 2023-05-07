@@ -64,16 +64,10 @@ const SignInButton = (props) => {
             } );
 
 
-        if (firebaseResponse.error
-            && firebaseResponse.error.includes("auth/user-not-found")) {
-            firebaseResponse = await createUserWithEmailAndPassword(auth,
-                emailRef.current,
-                passwordRef.current
-            ).catch((error) => {
-                console.log(error.toString());
+        if (firebaseResponse && firebaseResponse.error) {
+            console.log(error.toString());
 
-                return error.toString();
-            });
+            return error.toString();
         }
 
         if (firebaseResponse.user === undefined) {

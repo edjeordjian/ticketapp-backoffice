@@ -11,10 +11,18 @@ const GROUP_URL = `${EVENT_URL}/group`;
 
 const ADD_TO_GROUP_URL = `${GROUP_URL}/addUsers`;
 
+const USER_URL = "/user";
+
+const USER_BLOCK_URL = `${USER_URL}/block`;
+
+const USER_ALL = `${USER_URL}/all`;
+
+
 /* Params */
 const EVENT_ID_PARAM = "eventId";
 
-const OWNER_PARAM = "owner"
+const ADMIN_PARAM = "admin";
+
 
 /* Paths */
 const EVENT_CREATE_PATH =  "/events/create";
@@ -30,6 +38,6 @@ const ADD_TO_GROUP_PATH = "/group";
 export {
     SIGN_IN_URL, EVENT_URL, EVENT_SEARCH_NAME_URL, EVENT_TYPES_URL,
     EVENT_CREATE_PATH, EVENTS_PATH, LOG_IN_PATH, EVENT_VIEW_PATH,
-    EVENT_ID_PARAM, OWNER_PARAM, ADD_TO_GROUP_PATH, ADD_TO_GROUP_URL,
-    GROUP_URL
+    EVENT_ID_PARAM, ADMIN_PARAM, ADD_TO_GROUP_PATH, ADD_TO_GROUP_URL,
+    GROUP_URL, USER_BLOCK_URL, USER_ALL
 };
