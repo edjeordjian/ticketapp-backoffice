@@ -1,3 +1,8 @@
+import {createTheme} from "@mui/material/styles";
+import {esES} from "@mui/x-data-grid";
+import {esES as pickersEsES} from "@mui/x-date-pickers/locales/esES";
+import {esES as coreEsES} from "@mui/material/locale";
+
 const eventListViewStyles = {
     title: {
         fontSize: 24,
@@ -16,7 +21,25 @@ const eventListViewStyles = {
     },
 };
 
-module.exports = {
-    eventListViewStyles
-};
+const dataGridTheme = createTheme(
+    {
+        palette: {
+            primary: {
+                main: '#1976d2'
+            },
+        },
+    },
+    esES,
+    pickersEsES,
+    coreEsES
+);
 
+const textTheme = createTheme({
+    typography: {
+        fontSize: 18,
+    }
+});
+
+export {
+    eventListViewStyles, dataGridTheme, textTheme
+};

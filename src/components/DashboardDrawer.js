@@ -52,14 +52,14 @@ export default function DashboardDrawer() {
             </Toolbar>
             <Divider/>
             <List>
-                <ListItem button key={"Eventos"}
+                <ListItem button key={"Usuarios"}
                           style={{color: optionSelected ? "#6B7DE5" : "#252733"}}
                           className="dashboard-item">
                     <ListItemButton>
                           <ListItemIcon>
                             <EventIcon/>
                           </ListItemIcon>
-                        <ListItemText primary={"Eventos"} onClick={() => navigate(EVENTS_PATH)}/>
+                        <ListItemText primary={"Usuarios"} onClick={() => navigate(EVENTS_PATH)}/>
                     </ListItemButton>
                 </ListItem>
             </List>

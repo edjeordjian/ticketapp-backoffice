@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 import * as SweetAlert2 from "sweetalert2";
 import { useMainContext } from "../services/contexts/MainContext";
 import { BlankLine } from "../components/BlankLine";
-import {eventListViewStyles} from "../styles/events/ReportsListStyle";
+import {dataGridTheme, eventListViewStyles, textTheme} from "../styles/events/ReportsListStyle";
 
 import {AdminSwitch} from "../components/events/AdminSwitch";
 
@@ -20,24 +20,9 @@ import {
 } from "../constants/URLs";
 
 
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { DataGrid, esES } from '@mui/x-data-grid';
-import { esES as pickersEsES } from '@mui/x-date-pickers/locales';
-import { esES as coreEsES } from '@mui/material/locale';
-
-const theme = createTheme(
-    {
-      palette: {
-        primary: {
-          main: '#1976d2'
-        },
-      },
-    },
-    esES,
-    pickersEsES,
-    coreEsES
-);
-
+import { ThemeProvider } from '@mui/material/styles';
+import { DataGrid } from '@mui/x-data-grid';
+import Typography from "@mui/material/Typography";
 
 export default function ReportsListView(props) {
   const navigate = useNavigate();
@@ -65,8 +50,15 @@ export default function ReportsListView(props) {
       setFilteredRows(users);
     };
 
-    // getServicesWrapper().then(r => r);
+    getServicesWrapper().then(r => r);
   }, []);
+
+  const [sortModel, setSortModel] = React.useState([
+    {
+      field: 'reportsNumber',
+      sort: 'desc',
+    },
+  ]);
 
   const renderBlockedSwitch = (params) => {
     return (
@@ -103,20 +95,23 @@ export default function ReportsListView(props) {
     const user = users[params.row.id];
 
     return (
-        <div>
-          <Button style={{float: 'right'}}
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column'
+        }}>
+          <Button
                   onClick={async () => {
                     //navigate(constants.PROFILE_URL + "/" + params.row.id)
                   }}> Ver eventos
           </Button>
 
-          <Button style={{float: 'right'}}
+          <Button
                   onClick={async () => {
                     //navigate(constants.PROFILE_URL + "/" + params.row.id)
                   }}> Ver denuncias
           </Button>
 
-          <Button style={{float: 'right'}}
+          <Button
                   onClick={async () => {
                     //navigate(constants.PROFILE_URL + "/" + params.row.id)
                   }}> Dar de baja
@@ -166,43 +161,70 @@ export default function ReportsListView(props) {
       field: 'name',
       headerName: 'Nombre',
       headerClassName: classes.headerCell,
-      flex: 1,
+      flex: 0.7,
+      headerAlign: 'center',
+      align:'center'
     },
     {
       field: 'email',
       headerName: 'Correo',
       headerClassName: classes.headerCell,
       flex: 0.85,
+      headerAlign: 'center',
+      align:'center'
     },
     {
       field: 'reportsNumber',
       headerName: 'Denuncias',
       headerClassName: classes.headerCell,
       flex: 0.7,
+      headerAlign: 'center',
+      align:'center'
     },
     {
       field: 'lastReportDate',
       headerName: 'Última denuncia',
       headerClassName: classes.headerCell,
       flex: 0.7,
+      headerAlign: 'center',
+      align:'center'
     },
     {
       field: 'roles',
       headerName: 'Roles',
       headerClassName: classes.headerCell,
-      flex: 0.7,
+      flex: 1,
+      headerAlign: 'center',
+      align:'center'
     },
     {
       field: 'user actions',
       headerName: 'Acciones',
-      flex: 0.5,
+      flex: 0.7,
       headerClassName: classes.headerCell,
-      renderCell: renderGetProfile
+      renderCell: renderGetProfile,
+      headerAlign: 'center',
+      align:'center'
     }
   ];
 
   return (
       <div>
+        <BlankLine/>
+
+        <ThemeProvider theme={textTheme}>
+          <Box style={{
+            width: 400,
+            position: 'absolute',
+            right: 1250
+          }}>
+           <Typography>Usuarios por denuncias
+           </Typography>
+          </Box>
+        </ThemeProvider>
+
+        <BlankLine/>
+
         <div>
           <Table>
             <TableBody>
@@ -211,6 +233,7 @@ export default function ReportsListView(props) {
                   width: 300,
                   textAlign: "center"
                 }}>
+                  {/*
                   <TextField onChange={handleSearchText}
                              value={searchText}
                              margin="normal"
@@ -219,6 +242,7 @@ export default function ReportsListView(props) {
                              size={"small"}
                              autoFocus>
                   </TextField>
+                  */}
                 </TableCell>
               </TableRow>
             </TableBody>
@@ -230,24 +254,25 @@ export default function ReportsListView(props) {
           position: 'absolute',
           right: 0,
           minHeight: window.innerHeight}}>
-          <ThemeProvider theme={theme}>
+          <ThemeProvider theme={dataGridTheme}>
           <DataGrid
+              sortModel={sortModel}
               rowClick="show"
               classes={{
                 headerCell: classes.headerCell,
                 row: classes.row}}
               rows={filteredRows}
-              autoHeight={true}
+              rowHeight={100}
               columns={columns}
               EnableHeadersVisualStyles={false}
               initialState={{
                 pagination: {
                   paginationModel: {
-                    pageSize: 10
+                    pageSize: 5
                   }
                   },
               }}
-              pageSizeOptions={[10, 25, 50]}/>
+              pageSizeOptions={[5, 50, 100]}/>
           </ThemeProvider>
         </div>
       </div>
