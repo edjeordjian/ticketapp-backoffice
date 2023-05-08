@@ -92,7 +92,7 @@ export default function ReportsListView(props) {
   }
 
   const renderGetProfile = (params) => {
-    const user = users[params.row.id];
+    const user = params.row;
 
     return (
         <div style={{
@@ -101,7 +101,7 @@ export default function ReportsListView(props) {
         }}>
           <Button
                   onClick={async () => {
-                    //navigate(constants.PROFILE_URL + "/" + params.row.id)
+                    navigate(EVENTS_PATH, user.events)
                   }}> Ver eventos
           </Button>
 

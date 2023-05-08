@@ -18,7 +18,7 @@ import {signInButtonStyle} from "../../styles/login/SignInButtonStyle";
 
 import {postTo} from "../../services/helpers/RequestHelper";
 
-import {EVENTS_PATH, SIGN_IN_URL} from "../../constants/URLs";
+import {EVENTS_PATH, REPORTS_PATH, SIGN_IN_URL} from "../../constants/URLs";
 
 import Box from "@mui/material/Box";
 
@@ -108,7 +108,7 @@ const SignInButton = (props) => {
 
             logIn(userData, idToken);
 
-            navigate(EVENTS_PATH);
+            navigate(REPORTS_PATH);
         }
     };
 
