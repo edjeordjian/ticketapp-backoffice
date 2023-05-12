@@ -16,7 +16,7 @@ import {AdminSwitch} from "../components/events/AdminSwitch";
 import {matrixStyles} from "../styles/events/matrixStyles";
 
 import {
-  EVENTS_PATH, USER_BLOCK_URL, USER_ALL
+  EVENTS_PATH, USER_BLOCK_URL, USER_ALL, REPORTS_PATH, USER_REPORTS
 } from "../constants/URLs";
 
 
@@ -32,9 +32,8 @@ export default function ReportsListView(props) {
   const { getUserId, getUserToken } = useMainContext();
   const [userId, setUserId] = React.useState(getUserId());
   const [users, setUsers] = React.useState([]);
-
   const [userToken, setUserToken] = React.useState(getUserToken());
-
+  const {logOut} = useMainContext();
   const [rows, setRows] = React.useState([]);
   const [filteredRows, setFilteredRows] = React.useState([]);
   const [searchText, setSearchText] = React.useState("");
@@ -99,8 +98,7 @@ export default function ReportsListView(props) {
           display: 'flex',
           flexDirection: 'column'
         }}>
-          <Button
-                  onClick={async () => {
+          <Button onClick={async () => {
                     navigate(EVENTS_PATH, {
                       state: {
                         events: user.events
@@ -109,14 +107,17 @@ export default function ReportsListView(props) {
                   }}> Ver eventos
           </Button>
 
-          <Button
-                  onClick={async () => {
-                    //navigate(constants.PROFILE_URL + "/" + params.row.id)
+          <Button onClick={async () => {
+                    navigate(USER_REPORTS, {
+                      state: {
+                        userName: user.name,
+                        reports: user.reports
+                      }
+                    })
                   }}> Ver denuncias
           </Button>
 
-          <Button
-                  onClick={async () => {
+          <Button onClick={async () => {
                     //navigate(constants.PROFILE_URL + "/" + params.row.id)
                   }}> Dar de baja
           </Button>
@@ -131,10 +132,14 @@ export default function ReportsListView(props) {
 
     if (response.error) {
       SweetAlert2.fire({
-        icon: "info",
+        icon: "error",
         title: response.error,
         confirmButtonText: "Aceptar"
-      }).then();
+      }).then(r => {
+        logOut();
+
+        navigate("/");
+      });
     }
 
     return response.list;

@@ -1,18 +1,19 @@
 import * as React from "react";
 
-import Box from "@mui/material/Box";
+import {Box} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import {getTo} from "../services/helpers/RequestHelper";
-import Grid from "@mui/material/Grid";
-import UploadAndDisplayImage from "../components/UploadAndDisplayImage";
-import BasicDatePicker from "../components/BasicDatePicker";
-import InputTags from "../components/TagField";
 
-import {EVENT_ID_PARAM, EVENT_TYPES_URL, EVENT_URL, EVENT_VIEW_PATH, EVENTS_PATH} from "../constants/URLs";
+import {
+    EVENT_ID_PARAM,
+    EVENT_TYPES_URL,
+    EVENT_URL,
+    EVENT_VIEW_PATH,
+    EVENTS_PATH,
+    GET_REPORTS_PARAM
+} from "../constants/URLs";
 
 import {BlankLine} from "../components/BlankLine";
-import 'react-quill/dist/quill.snow.css';
-
 import {createEventStyle as createEventStyles} from "../styles/events/CreateEventStyle";
 
 import SweetAlert2 from 'sweetalert2';
@@ -30,7 +31,9 @@ import ReactHtmlParser from "react-html-parser";
 import { useMainContext } from "../services/contexts/MainContext";
 import { GoogleMap, MarkerF, useJsApiLoader } from "@react-google-maps/api";
 
-const ViewEventView = () => {
+import { Scrollbars } from 'react-custom-scrollbars';
+
+const EventView = () => {
     const [name, setName] = React.useState("");
 
     const [richDescription, setRichDescription] = React.useState("");
@@ -53,6 +56,8 @@ const ViewEventView = () => {
 
     const [events, setEvents] = React.useState([]);
 
+    const [reports, setReports] = React.useState([]);
+
     const [searchParams, setSearchParams] = useSearchParams();
 
     const [organizerName, setOrganizerName] = React.useState("");
@@ -70,7 +75,7 @@ const ViewEventView = () => {
   const getEventData = async () => {
     const eventId = searchParams.get(EVENT_ID_PARAM);
 
-        getTo(`${process.env.REACT_APP_BACKEND_HOST}${EVENT_URL}?${EVENT_ID_PARAM}=${eventId}`,
+        getTo(`${process.env.REACT_APP_BACKEND_HOST}${EVENT_URL}?${EVENT_ID_PARAM}=${eventId}&${GET_REPORTS_PARAM}=true`,
           userToken)
             .then(response => {
                 if (response.error) {
@@ -101,6 +106,8 @@ const ViewEventView = () => {
                 setOrganizerName(response.organizerName);
 
                 setQuestions(response.faq);
+
+                setReports(response.reports);
 
                 if (response.latitude && response.longitude) {
                     setCenter({
@@ -163,10 +170,79 @@ const ViewEventView = () => {
             .then(getEventData);
     }, []);
 
+    if (loading) {
+        return <p></p>
+    }
+
     return (
         <main style={{backgroundColor: "#eeeeee", minHeight: "100vh"}}>
             <Box style={createEventStyles.formContainer}>
-                <Typography variant="h1">{name}
+                <Typography variant="h2">{name}
+                </Typography>
+
+                <BlankLine number={2}/>
+
+                <Typography variant="h3">
+                    <strong>Denuncias</strong>
+                </Typography>
+
+                <BlankLine/>
+
+                {
+                    reports.map((report, idx) => {
+                            return (
+                                <Scrollbars style={{
+                                    width: 1400,
+                                    height: 600,
+                                }}
+                                            key={idx}>
+                                    <Typography variant="h5"
+                                                display="block">
+                                        Usuario: {report.reporter}
+                                    </Typography>
+
+                                    <BlankLine />
+
+                                    <Typography variant="h5"
+                                                display="block">
+                                        Fecha: {report.date}
+                                    </Typography>
+
+                                    <BlankLine />
+
+                                    <Typography variant="h5"
+                                                display="block">
+                                        <strong> Motivo: </strong>
+                                    </Typography>
+
+                                    <Typography variant="h5"
+                                                display="block">
+                                        {report.reason}
+                                    </Typography>
+
+                                    <BlankLine />
+
+                                    <Typography variant="h5"
+                                                display="block">
+                                        <strong> Texto de la denuncia: </strong>
+                                    </Typography>
+
+                                    <Typography variant="h5"
+                                                display="block">
+                                        {report.text}
+                                    </Typography>
+
+                                    <BlankLine number={2}/>
+                                </Scrollbars>
+                            )
+                        }
+                    )
+                }
+
+                <BlankLine number={2}/>
+
+                <Typography variant="h3">
+                    <strong>Información del evento</strong>
                 </Typography>
 
                 <BlankLine/>
@@ -175,13 +251,11 @@ const ViewEventView = () => {
 
                 <BlankLine number={2}/>
 
-                {loading ? (
-                    <p></p>
-                ) : (
+                {(
                     types.map((type, idx) => (
-                        <b key={idx}
-                           style={tagStyle}>{type}
-                        </b>
+                    <b key={idx}
+                       style={tagStyle}>{type}
+                    </b>
                     ))
                 )}
 
@@ -278,5 +352,5 @@ const ViewEventView = () => {
 }
 
 export {
-    ViewEventView
+    EventView
 };
