@@ -16,41 +16,41 @@ import {AdminSwitch} from "../components/events/AdminSwitch";
 import {matrixStyles} from "../styles/events/matrixStyles";
 
 import {
-  EVENTS_PATH, USER_BLOCK_URL, USER_ALL, REPORTS_PATH, USER_REPORTS
+  EVENTS_PATH, USER_BLOCK_URL, USER_ALL, REPORTS_PATH, USER_REPORTS, START_DATE_PARAM, END_DATE_PARAM
 } from "../constants/URLs";
 
 
 import { ThemeProvider } from '@mui/material/styles';
 import { DataGrid } from '@mui/x-data-grid';
 import Typography from "@mui/material/Typography";
+import BasicDatePicker from "../components/BasicDatePicker";
 
 export default function ReportsListView(props) {
   const navigate = useNavigate();
 
   const [loading, setLoading] = React.useState(true);
+
   const [events, setEvents] = React.useState([]);
+
   const { getUserId, getUserToken } = useMainContext();
+
   const [userId, setUserId] = React.useState(getUserId());
+
   const [users, setUsers] = React.useState([]);
+
   const [userToken, setUserToken] = React.useState(getUserToken());
+
   const {logOut} = useMainContext();
+
   const [rows, setRows] = React.useState([]);
+
   const [filteredRows, setFilteredRows] = React.useState([]);
-  const [searchText, setSearchText] = React.useState("");
+
+  const [startDate, setStartDate] = React.useState("");
+
+  const [endDate, setEndDate] = React.useState("");
+
   const classes = matrixStyles();
-
-  React.useEffect(() => {
-    document.body.style.backgroundColor = '#f9f6f4';
-
-    const getServicesWrapper = async () => {
-      const users = await getUsers();
-      setUsers(users);
-      setRows(users);
-      setFilteredRows(users);
-    };
-
-    getServicesWrapper().then(r => r);
-  }, []);
 
   const [sortModel, setSortModel] = React.useState([
     {
@@ -58,6 +58,38 @@ export default function ReportsListView(props) {
       sort: 'desc',
     },
   ]);
+
+  React.useEffect(() => {
+    document.body.style.backgroundColor = '#f9f6f4';
+
+    getServicesWrapper(false).then(r => r);
+  }, []);
+
+  const getServicesWrapper = async (useFilters) => {
+    const users = await getUsers(useFilters);
+
+    setUsers(users);
+
+    setRows(users);
+
+    setFilteredRows(users);
+  };
+
+  const handleUseFilter = async () => {
+      await getServicesWrapper(true);
+  }
+
+  const handleDisableFilter = async () => {
+      await getServicesWrapper(false);
+  }
+
+  const handleStartDateChange = (value) => {
+    setStartDate(value);
+  }
+
+  const handleEndDateChange = (value) => {
+    setEndDate(value);
+  }
 
   const renderBlockedSwitch = (params) => {
     return (
@@ -125,8 +157,12 @@ export default function ReportsListView(props) {
     );
   }
 
-  async function getUsers() {
-    const url = `${process.env.REACT_APP_BACKEND_HOST}${USER_ALL}`;
+  async function getUsers(useFilters) {
+    let url = `${process.env.REACT_APP_BACKEND_HOST}${USER_ALL}`;
+
+    if (useFilters) {
+      url += `?${START_DATE_PARAM}=${startDate}&${END_DATE_PARAM}=${endDate}`;
+    }
 
     let response = await getTo(url, userToken);
 
@@ -143,26 +179,6 @@ export default function ReportsListView(props) {
     }
 
     return response.list;
-  }
-
-  const handleSearchText = (event) => {
-    const textInTextBox = event.target.value;
-
-    setSearchText(textInTextBox);
-
-    const lowerText = textInTextBox;
-
-    const newRows = rows.filter(row => {
-      return Object.keys(row)
-          .filter(field => field.toString() !== "photoUrl")
-          .some(field => {
-            return row[field].toString()
-                .toLowerCase()
-                .includes(lowerText);
-          });
-    });
-
-    setFilteredRows(newRows);
   }
 
   const columns = [
@@ -215,11 +231,11 @@ export default function ReportsListView(props) {
 
         <ThemeProvider theme={textTheme}>
           <Box style={{
-            width: 400,
+            width: 800,
             position: 'absolute',
-            right: 1250
+            right: 850
           }}>
-           <Typography>Usuarios por denuncias
+           <Typography variant="h4">Usuarios por denuncias
            </Typography>
           </Box>
         </ThemeProvider>
@@ -232,23 +248,58 @@ export default function ReportsListView(props) {
               <TableRow>
                 <TableCell style={{
                   width: 300,
-                  textAlign: "center"
+                  textAlign: "right"
                 }}>
-                  {/*
-                  <TextField onChange={handleSearchText}
-                             value={searchText}
-                             margin="normal"
-                             label="🔍"
-                             style={{width: 200, backgroundColor: '#f5fcff', borderRadius: 5}}
-                             size={"small"}
-                             autoFocus>
-                  </TextField>
-                  */}
+                  {
+                    <Box>
+                      <Box style={{
+                        display: "flex",
+                        flexDirection: "row"
+                      }}>
+                        <Box flex={4}>
+                        </Box>
+
+                        <Box flex={1}>
+                          <BasicDatePicker setSelectedDate={handleStartDateChange}
+                                           label={"Fecha de inicio"}/>
+                        </Box>
+
+                        <Box flex={1}>
+                          <BasicDatePicker setSelectedDate={handleEndDateChange}
+                                            label={"Fecha de fin"}/>
+                        </Box>
+                      </Box>
+
+                      <BlankLine/>
+
+                      <Box style={{
+                        display: "flex",
+                        flexDirection: "row"
+                      }}>
+                        <Box flex={8}>
+                        </Box>
+                          <Box flex={1}>
+                            <Box onClick={handleUseFilter}>
+                              <Button>Filtrar por fecha</Button>
+                            </Box>
+                          </Box>
+
+                          <Box flex={1}>
+                            <Box onClick={handleDisableFilter}>
+                              <Button>Quitar filtro</Button>
+                            </Box>
+                          </Box>
+                      </Box>
+                  </Box>
+                  }
                 </TableCell>
               </TableRow>
             </TableBody>
           </Table>
         </div>
+        }
+
+        <BlankLine number={2}/>
 
         <div style={{
           width: '87%',
