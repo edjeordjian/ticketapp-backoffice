@@ -91,7 +91,7 @@ export default function ReportsListView(props) {
     }
   }
 
-  const renderGetProfile = (params) => {
+  const renderActions = (params) => {
     const user = params.row;
 
     return (
@@ -101,7 +101,11 @@ export default function ReportsListView(props) {
         }}>
           <Button
                   onClick={async () => {
-                    navigate(EVENTS_PATH, user.events)
+                    navigate(EVENTS_PATH, {
+                      state: {
+                        events: user.events
+                      }
+                    })
                   }}> Ver eventos
           </Button>
 
@@ -190,19 +194,11 @@ export default function ReportsListView(props) {
       align:'center'
     },
     {
-      field: 'roles',
-      headerName: 'Roles',
-      headerClassName: classes.headerCell,
-      flex: 1,
-      headerAlign: 'center',
-      align:'center'
-    },
-    {
       field: 'user actions',
       headerName: 'Acciones',
       flex: 0.7,
       headerClassName: classes.headerCell,
-      renderCell: renderGetProfile,
+      renderCell: renderActions,
       headerAlign: 'center',
       align:'center'
     }

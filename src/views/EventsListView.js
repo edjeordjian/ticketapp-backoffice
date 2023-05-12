@@ -4,7 +4,7 @@ import { Box } from "@mui/system";
 import * as React from "react";
 import BasicBtn from "../components/BasicBtn";
 import DashboardDrawer from "../components/DashboardDrawer";
-import { useNavigate } from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import {
   ADD_TO_GROUP_PATH,
   EVENT_CREATE_PATH,
@@ -36,7 +36,7 @@ const styles = {
   },
 };
 
-export default function EventsListView(props) {
+export default function EventsListView() {
   const navigate = useNavigate();
 
   const [loading, setLoading] = React.useState(true);
@@ -46,9 +46,17 @@ export default function EventsListView(props) {
 
   const [userToken, setUserToken] = React.useState(getUserToken());
 
+  const {state} = useLocation();
+
+  let events;
+
+  if (state) {
+    events = state.events;
+  }
+
   React.useEffect(() => {
-    if (props.events) {
-      setSelectableEvents(props.events);
+    if (events) {
+      setSelectableEvents(events);
     }
 
     setLoading(false);
@@ -71,7 +79,7 @@ export default function EventsListView(props) {
           width={"100%"}
           height={"400px"}
           style={{ borderRadius: 20, marginTop: "25px" }}
-          src={source.pictures ? source.pictures[0] : ""}
+          src={source.mainPicture ? source.mainPicture : ""}
         />
 
         <BlankLine />

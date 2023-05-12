@@ -59,7 +59,7 @@ export default function DashboardDrawer() {
                           <ListItemIcon>
                             <EventIcon/>
                           </ListItemIcon>
-                        <ListItemText primary={"Usuarios"} onClick={() => navigate(EVENTS_PATH)}/>
+                        <ListItemText primary={"Usuarios"} onClick={() => navigate("/")}/>
                     </ListItemButton>
                 </ListItem>
             </List>

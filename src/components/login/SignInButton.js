@@ -63,11 +63,8 @@ const SignInButton = (props) => {
                 };
             } );
 
-
         if (firebaseResponse && firebaseResponse.error) {
-            console.log(error.toString());
-
-            return error.toString();
+            console.log(firebaseResponse.error);
         }
 
         if (firebaseResponse.user === undefined) {
