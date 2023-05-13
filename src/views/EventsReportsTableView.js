@@ -16,7 +16,14 @@ import {AdminSwitch} from "../components/events/AdminSwitch";
 import {matrixStyles} from "../styles/events/matrixStyles";
 
 import {
-  EVENTS_PATH, USER_BLOCK_URL, USER_ALL, REPORTS_PATH, USER_REPORTS, START_DATE_PARAM, END_DATE_PARAM
+  EVENTS_PATH,
+  USER_BLOCK_URL,
+  USER_ALL,
+  REPORTS_PATH,
+  USER_REPORTS,
+  START_DATE_PARAM,
+  END_DATE_PARAM,
+  EVENT_SEARCH_NAME_URL, ADMIN_PARAM, GET_REPORTS_PARAM
 } from "../constants/URLs";
 
 
@@ -25,18 +32,14 @@ import { DataGrid } from '@mui/x-data-grid';
 import Typography from "@mui/material/Typography";
 import BasicDatePicker from "../components/BasicDatePicker";
 
-export default function ReportsListView(props) {
+export default function EventsReportsTableView(props) {
   const navigate = useNavigate();
 
   const [loading, setLoading] = React.useState(true);
 
-  const [events, setEvents] = React.useState([]);
-
   const { getUserId, getUserToken } = useMainContext();
 
-  const [userId, setUserId] = React.useState(getUserId());
-
-  const [users, setUsers] = React.useState([]);
+  const [events, setEvents] = React.useState([]);
 
   const [userToken, setUserToken] = React.useState(getUserToken());
 
@@ -66,13 +69,13 @@ export default function ReportsListView(props) {
   }, []);
 
   const getServicesWrapper = async (useFilters) => {
-    const users = await getUsers(useFilters);
+    const events = await getEvents(useFilters);
 
-    setUsers(users);
+    setEvents(events);
 
-    setRows(users);
+    setRows(events);
 
-    setFilteredRows(users);
+    setFilteredRows(events);
   };
 
   const handleUseFilter = async () => {
@@ -123,7 +126,7 @@ export default function ReportsListView(props) {
   }
 
   const renderActions = (params) => {
-    const user = params.row;
+    const events = params.row;
 
     return (
         <div style={{
@@ -133,17 +136,7 @@ export default function ReportsListView(props) {
           <Button onClick={async () => {
                     navigate(EVENTS_PATH, {
                       state: {
-                        events: user.events
-                      }
-                    })
-                  }}> Ver eventos
-          </Button>
-
-          <Button onClick={async () => {
-                    navigate(USER_REPORTS, {
-                      state: {
-                        userName: user.name,
-                        reports: user.reports
+                        events: events
                       }
                     })
                   }}> Ver denuncias
@@ -151,17 +144,19 @@ export default function ReportsListView(props) {
 
           <Button onClick={async () => {
                     //navigate(constants.PROFILE_URL + "/" + params.row.id)
-                  }}> Dar de baja
+                  }}> Suspender evento
           </Button>
         </div>
     );
   }
 
-  async function getUsers(useFilters) {
-    let url = `${process.env.REACT_APP_BACKEND_HOST}${USER_ALL}`;
+  async function getEvents(useFilters) {
+    let url = `${process.env.REACT_APP_BACKEND_HOST}${EVENT_SEARCH_NAME_URL}`;
+
+    url += `?${ADMIN_PARAM}=true&${GET_REPORTS_PARAM}=true`;
 
     if (useFilters) {
-      url += `?${START_DATE_PARAM}=${startDate}&${END_DATE_PARAM}=${endDate}`;
+      url += `${START_DATE_PARAM}=${startDate}&${END_DATE_PARAM}=${endDate}`;
     }
 
     let response = await getTo(url, userToken);
@@ -172,13 +167,15 @@ export default function ReportsListView(props) {
         title: response.error,
         confirmButtonText: "Aceptar"
       }).then(r => {
-        logOut();
-
-        navigate("/");
+        if (response.error
+            .toLowerCase()
+            .includes("token")) {
+          logOut().then(navigate("/"));
+        }
       });
     }
 
-    return response.list;
+    return response.events;
   }
 
   const columns = [
@@ -187,14 +184,6 @@ export default function ReportsListView(props) {
       headerName: 'Nombre',
       headerClassName: classes.headerCell,
       flex: 0.7,
-      headerAlign: 'center',
-      align:'center'
-    },
-    {
-      field: 'email',
-      headerName: 'Correo',
-      headerClassName: classes.headerCell,
-      flex: 0.85,
       headerAlign: 'center',
       align:'center'
     },
@@ -235,7 +224,7 @@ export default function ReportsListView(props) {
             position: 'absolute',
             right: 850
           }}>
-           <Typography variant="h4">Usuarios por denuncias
+           <Typography variant="h4">Eventos por denuncias
            </Typography>
           </Box>
         </ThemeProvider>
