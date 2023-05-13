@@ -2,7 +2,7 @@ import {
   Button, Table, TableBody, TableCell,
   TableRow, TextField
 } from "@mui/material";
-import { getTo, postTo } from "../services/helpers/RequestHelper";
+import {getTo, patchTo, postTo} from "../services/helpers/RequestHelper";
 import { Box } from "@mui/system";
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
@@ -25,6 +25,7 @@ import { ThemeProvider } from '@mui/material/styles';
 import { DataGrid } from '@mui/x-data-grid';
 import Typography from "@mui/material/Typography";
 import BasicDatePicker from "../components/BasicDatePicker";
+import Swal from "sweetalert2";
 
 export default function UserReportsTableView(props) {
   const navigate = useNavigate();
@@ -49,6 +50,8 @@ export default function UserReportsTableView(props) {
 
   const classes = matrixStyles();
 
+  const [updateTab, setUpdateTab] = React.useState(false);
+
   const [sortModel, setSortModel] = React.useState([
     {
       field: 'reportsNumber',
@@ -60,7 +63,7 @@ export default function UserReportsTableView(props) {
     document.body.style.backgroundColor = '#f9f6f4';
 
     getServicesWrapper(false).then(r => r);
-  }, []);
+  }, [updateTab]);
 
   const getServicesWrapper = async (useFilters) => {
     const users = await getUsers(useFilters);
@@ -88,34 +91,34 @@ export default function UserReportsTableView(props) {
     setEndDate(value);
   }
 
-  const renderBlockedSwitch = (params) => {
-    return (
-        <AdminSwitch
-            itemId={params.row.id}
-            initialState={params.row.isBlocked}
-            executeOnChange={handleBlockedSwitch}
-            input={{'aria-label': 'controlled'}}
-            defaultOn={true}
-        />
-    );
-  }
-
-  async function handleBlockedSwitch(checked, userId) {
+  async function handleBlock(user) {
     const url = `${process.env.REACT_APP_BACKEND_HOST}${USER_BLOCK_URL}`;
 
     const requestBody = {
-      userId: userId,
-      block: ! checked
+      email: user.email,
+      block: ! user.isBlocked
     }
 
-    const response = await postTo(url, requestBody, userToken);
+    const response = await patchTo(url, requestBody, userToken);
 
     if (response.error) {
       SweetAlert2.fire({
-        icon: "info",
+        icon: "error",
         title: response.error,
         confirmButtonText: "Aceptar"
-      }).then();
+      }).then(r => {
+        if (response.error
+            .toLowerCase()
+            .includes("token")) {
+          logOut().then(navigate("/"));
+        }
+      });
+    } else {
+      SweetAlert2.fire({
+        icon: "info",
+        title: response.message,
+        confirmButtonText: "Aceptar"
+      }).then(_ => setUpdateTab(! updateTab));
     }
   }
 
@@ -146,9 +149,10 @@ export default function UserReportsTableView(props) {
                   }}> Ver denuncias
           </Button>
 
-          <Button onClick={async () => {
-                    //navigate(constants.PROFILE_URL + "/" + params.row.id)
-                  }}> Suspender usuario
+          <Button onClick={() => handleBlock(user)}>
+            {
+              (user.isBlocked) ? "Activar usuario" : "Suspender usuario"
+            }
           </Button>
         </div>
     );
