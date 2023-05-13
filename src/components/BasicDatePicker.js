@@ -12,8 +12,10 @@ export default function BasicDatePicker(props) {
   };
 
   return (
-    <LocalizationProvider dateAdapter={AdapterMoment} locale={moment.locale()}>
-      <DatePicker label="Elija una fecha" onChange={handleDateChange} />
+    <LocalizationProvider dateAdapter={AdapterMoment}
+                          locale={moment.locale()}>
+      <DatePicker label={props.label ? props.label : "Elija una fecha"}
+                  onChange={handleDateChange} />
     </LocalizationProvider>
   );
 }
