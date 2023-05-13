@@ -1,6 +1,6 @@
 import {
   Button, Table, TableBody, TableCell,
-  TableRow, TextField
+  TableRow
 } from "@mui/material";
 import { getTo, postTo } from "../services/helpers/RequestHelper";
 import { Box } from "@mui/system";
@@ -16,14 +16,8 @@ import {AdminSwitch} from "../components/events/AdminSwitch";
 import {matrixStyles} from "../styles/events/matrixStyles";
 
 import {
-  EVENTS_PATH,
-  USER_BLOCK_URL,
-  USER_ALL,
-  REPORTS_PATH,
-  USER_REPORTS,
-  START_DATE_PARAM,
-  END_DATE_PARAM,
-  EVENT_SEARCH_NAME_URL, ADMIN_PARAM, GET_REPORTS_PARAM
+  USER_BLOCK_URL, START_DATE_PARAM, END_DATE_PARAM, EVENT_SEARCH_NAME_URL,
+  ADMIN_PARAM, GET_REPORTS_PARAM, EVENT_REPORTS_LIST_PATH, EVENT_VIEW_PATH, EVENT_ID_PARAM
 } from "../constants/URLs";
 
 
@@ -126,19 +120,13 @@ export default function EventsReportsTableView(props) {
   }
 
   const renderActions = (params) => {
-    const events = params.row;
-
     return (
         <div style={{
           display: 'flex',
           flexDirection: 'column'
         }}>
           <Button onClick={async () => {
-                    navigate(EVENTS_PATH, {
-                      state: {
-                        events: events
-                      }
-                    })
+                    navigate(`${EVENT_VIEW_PATH}?${EVENT_ID_PARAM}=${params.row.id}`)
                   }}> Ver denuncias
           </Button>
 

@@ -1,7 +1,8 @@
 import {Route, Routes} from "react-router-dom";
 import {
-    ADD_TO_GROUP_PATH, EVENT_CREATE_PATH, EVENT_REPORTS_PATH, EVENT_VIEW_PATH,
-    EVENTS_PATH, LOG_IN_PATH, REPORTS_PATH, USER_REPORTS, USER_REPORTS_PATH
+    ADD_TO_GROUP_PATH, EVENT_CREATE_PATH, EVENT_REPORTS_LIST_PATH, EVENT_REPORTS_PATH,
+    EVENT_VIEW_PATH, EVENTS_PATH, LOG_IN_PATH, USER_REPORTS_LIST_PATH,
+    USER_REPORTS_PATH
 } from "../../constants/URLs";
 import CreateEventView from "../../views/CreateEventView";
 import UserReportsTableView from "../../views/UserReportsTableView";
@@ -27,7 +28,7 @@ const LoggedRouter = () => {
 
                 <Route exact path={EVENTS_PATH} element={<EventsListView/>}/>
 
-                <Route exact path={USER_REPORTS} element={<UserReportsListView/>}/>
+                <Route exact path={USER_REPORTS_LIST_PATH} element={<UserReportsListView/>}/>
 
                 <Route exact path={EVENT_CREATE_PATH} element={<CreateEventView/>}/>
 

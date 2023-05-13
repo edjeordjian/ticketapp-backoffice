@@ -16,7 +16,8 @@ import {AdminSwitch} from "../components/events/AdminSwitch";
 import {matrixStyles} from "../styles/events/matrixStyles";
 
 import {
-  EVENTS_PATH, USER_BLOCK_URL, USER_ALL, REPORTS_PATH, USER_REPORTS, START_DATE_PARAM, END_DATE_PARAM
+  EVENTS_PATH, USER_BLOCK_URL, USER_ALL, REPORTS_PATH,
+  START_DATE_PARAM, END_DATE_PARAM, USER_REPORTS_LIST_PATH
 } from "../constants/URLs";
 
 
@@ -136,7 +137,7 @@ export default function UserReportsTableView(props) {
           </Button>
 
           <Button onClick={async () => {
-                    navigate(USER_REPORTS, {
+                    navigate(USER_REPORTS_LIST_PATH, {
                       state: {
                         userName: user.name,
                         reports: user.reports
@@ -171,7 +172,9 @@ export default function UserReportsTableView(props) {
         if (response.error
             .toLowerCase()
             .includes("token")) {
-          logOut().then(navigate("/"));
+          navigate("/");
+
+          logOut();
         }
       });
     }
