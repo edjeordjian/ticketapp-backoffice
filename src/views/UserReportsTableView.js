@@ -11,8 +11,6 @@ import { useMainContext } from "../services/contexts/MainContext";
 import { BlankLine } from "../components/BlankLine";
 import {dataGridTheme, eventListViewStyles, textTheme} from "../styles/events/ReportsListStyle";
 
-import {AdminSwitch} from "../components/events/AdminSwitch";
-
 import {matrixStyles} from "../styles/events/matrixStyles";
 
 import {
@@ -131,15 +129,6 @@ export default function UserReportsTableView(props) {
           flexDirection: 'column'
         }}>
           <Button onClick={async () => {
-                    navigate(EVENTS_PATH, {
-                      state: {
-                        events: user.events
-                      }
-                    })
-                  }}> Ver eventos
-          </Button>
-
-          <Button onClick={async () => {
                     navigate(USER_REPORTS_LIST_PATH, {
                       state: {
                         userName: user.name,
@@ -238,7 +227,7 @@ export default function UserReportsTableView(props) {
           <Box style={{
             width: 800,
             position: 'absolute',
-            right: 850
+            right: 650
           }}>
            <Typography variant="h4">Usuarios por denuncias
            </Typography>
@@ -313,7 +302,6 @@ export default function UserReportsTableView(props) {
           minHeight: window.innerHeight}}>
           <ThemeProvider theme={dataGridTheme}>
           <DataGrid
-              sortModel={sortModel}
               rowClick="show"
               classes={{
                 headerCell: classes.headerCell,

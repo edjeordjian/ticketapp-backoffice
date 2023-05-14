@@ -63,8 +63,21 @@ const SignInButton = (props) => {
                 };
             } );
 
+        /*
         if (firebaseResponse && firebaseResponse.error) {
             console.log(firebaseResponse.error);
+        } */
+
+        if (firebaseResponse.error
+            && firebaseResponse.error.includes("auth/user-not-found")) {
+            firebaseResponse = await createUserWithEmailAndPassword(auth,
+                emailRef.current,
+                passwordRef.current
+            ).catch((error) => {
+                console.log(error.toString());
+
+                return error.toString();
+            });
         }
 
         if (firebaseResponse.user === undefined) {
