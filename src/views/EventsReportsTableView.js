@@ -2,7 +2,7 @@ import {
   Button, Table, TableBody, TableCell,
   TableRow
 } from "@mui/material";
-import { getTo, postTo } from "../services/helpers/RequestHelper";
+import {getTo, patchTo, postTo} from "../services/helpers/RequestHelper";
 import { Box } from "@mui/system";
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
@@ -16,8 +16,17 @@ import {AdminSwitch} from "../components/events/AdminSwitch";
 import {matrixStyles} from "../styles/events/matrixStyles";
 
 import {
-  USER_BLOCK_URL, START_DATE_PARAM, END_DATE_PARAM, EVENT_SEARCH_NAME_URL,
-  ADMIN_PARAM, GET_REPORTS_PARAM, EVENT_REPORTS_LIST_PATH, EVENT_VIEW_PATH, EVENT_ID_PARAM
+  USER_BLOCK_URL,
+  START_DATE_PARAM,
+  END_DATE_PARAM,
+  EVENT_SEARCH_NAME_URL,
+  ADMIN_PARAM,
+  GET_REPORTS_PARAM,
+  EVENT_REPORTS_LIST_PATH,
+  EVENT_VIEW_PATH,
+  EVENT_ID_PARAM,
+  EVENT_CANCEL_URL,
+  EVENT_SUSPEND_URL
 } from "../constants/URLs";
 
 
@@ -49,6 +58,8 @@ export default function EventsReportsTableView(props) {
 
   const classes = matrixStyles();
 
+  const [updateTab, setUpdateTab] = React.useState(false);
+
   const [sortModel, setSortModel] = React.useState([
     {
       field: 'reportsNumber',
@@ -60,7 +71,7 @@ export default function EventsReportsTableView(props) {
     document.body.style.backgroundColor = '#f9f6f4';
 
     getServicesWrapper(false).then(r => r);
-  }, []);
+  }, [updateTab]);
 
   const getServicesWrapper = async (useFilters) => {
     const events = await getEvents(useFilters);
@@ -88,51 +99,56 @@ export default function EventsReportsTableView(props) {
     setEndDate(value);
   }
 
-  const renderBlockedSwitch = (params) => {
-    return (
-        <AdminSwitch
-            itemId={params.row.id}
-            initialState={params.row.isBlocked}
-            executeOnChange={handleBlockedSwitch}
-            input={{'aria-label': 'controlled'}}
-            defaultOn={true}
-        />
-    );
-  }
-
-  async function handleBlockedSwitch(checked, userId) {
-    const url = `${process.env.REACT_APP_BACKEND_HOST}${USER_BLOCK_URL}`;
+  async function handleSuspend(event) {
+    const url = `${process.env.REACT_APP_BACKEND_HOST}${EVENT_SUSPEND_URL}`;
 
     const requestBody = {
-      userId: userId,
-      block: ! checked
+      eventId: event.id,
+      suspend: !event.isBlocked
     }
 
-    const response = await postTo(url, requestBody, userToken);
+    const response = await patchTo(url, requestBody, userToken);
 
     if (response.error) {
       SweetAlert2.fire({
-        icon: "info",
+        icon: "error",
         title: response.error,
         confirmButtonText: "Aceptar"
-      }).then();
+      }).then(r => {
+        if (response.error
+            .toLowerCase()
+            .includes("token")) {
+          logOut().then(navigate("/"));
+        }
+      });
+    } else {
+      SweetAlert2.fire({
+        icon: "info",
+        title: response.message,
+        confirmButtonText: "Aceptar"
+      }).then(_ => setUpdateTab(! updateTab));
     }
   }
 
   const renderActions = (params) => {
+    const e = params.row;
+
     return (
         <div style={{
           display: 'flex',
           flexDirection: 'column'
         }}>
           <Button onClick={async () => {
-                    navigate(`${EVENT_VIEW_PATH}?${EVENT_ID_PARAM}=${params.row.id}`)
+                    navigate(`${EVENT_VIEW_PATH}?${EVENT_ID_PARAM}=${e.id}`)
                   }}> Ver denuncias
           </Button>
 
           <Button onClick={async () => {
-                    //navigate(constants.PROFILE_URL + "/" + params.row.id)
-                  }}> Suspender evento
+                    await handleSuspend(e)
+                  }}>
+            {
+              (e.isBlocked) ? "Activar evento" : "Suspender evento"
+            }
           </Button>
         </div>
     );
@@ -144,7 +160,7 @@ export default function EventsReportsTableView(props) {
     url += `?${ADMIN_PARAM}=true&${GET_REPORTS_PARAM}=true`;
 
     if (useFilters) {
-      url += `${START_DATE_PARAM}=${startDate}&${END_DATE_PARAM}=${endDate}`;
+      url += `&${START_DATE_PARAM}=${startDate}&${END_DATE_PARAM}=${endDate}`;
     }
 
     let response = await getTo(url, userToken);

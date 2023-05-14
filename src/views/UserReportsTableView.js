@@ -11,8 +11,6 @@ import { useMainContext } from "../services/contexts/MainContext";
 import { BlankLine } from "../components/BlankLine";
 import {dataGridTheme, eventListViewStyles, textTheme} from "../styles/events/ReportsListStyle";
 
-import {AdminSwitch} from "../components/events/AdminSwitch";
-
 import {matrixStyles} from "../styles/events/matrixStyles";
 
 import {
