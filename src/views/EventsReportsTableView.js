@@ -226,7 +226,7 @@ export default function EventsReportsTableView(props) {
           <Box style={{
             width: 800,
             position: 'absolute',
-            right: 850
+            right: 650
           }}>
            <Typography variant="h4">Eventos por denuncias
            </Typography>
@@ -301,7 +301,6 @@ export default function EventsReportsTableView(props) {
           minHeight: window.innerHeight}}>
           <ThemeProvider theme={dataGridTheme}>
           <DataGrid
-              sortModel={sortModel}
               rowClick="show"
               classes={{
                 headerCell: classes.headerCell,
