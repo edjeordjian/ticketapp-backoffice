@@ -5,7 +5,7 @@ import {
 import {getTo, patchTo, postTo} from "../services/helpers/RequestHelper";
 import { Box } from "@mui/system";
 import * as React from "react";
-import { useNavigate } from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import * as SweetAlert2 from "sweetalert2";
 import { useMainContext } from "../services/contexts/MainContext";
 import { BlankLine } from "../components/BlankLine";
@@ -139,7 +139,11 @@ export default function EventsReportsTableView(props) {
           flexDirection: 'column'
         }}>
           <Button onClick={async () => {
-                    navigate(`${EVENT_VIEW_PATH}?${EVENT_ID_PARAM}=${e.id}`)
+                    navigate(`${EVENT_VIEW_PATH}?${EVENT_ID_PARAM}=${e.id}`, {
+                      state: {
+                        event: e
+                      }
+                    })
                   }}> Ver denuncias
           </Button>
 
@@ -151,6 +155,16 @@ export default function EventsReportsTableView(props) {
             }
           </Button>
         </div>
+    );
+  }
+
+  const renderName = (params) => {
+    const e = params.row;
+
+    return (
+        <Link to={`${EVENT_VIEW_PATH}?${EVENT_ID_PARAM}=${e.id}`}
+              style={{ textDecoration: 'none' }}>{e.name}
+        </Link>
     );
   }
 
@@ -187,6 +201,7 @@ export default function EventsReportsTableView(props) {
       field: 'name',
       headerName: 'Nombre',
       headerClassName: classes.headerCell,
+      renderCell: renderName,
       flex: 0.7,
       headerAlign: 'center',
       align:'center'
