@@ -19,7 +19,7 @@ import {createEventStyle as createEventStyles} from "../styles/events/CreateEven
 import SweetAlert2 from 'sweetalert2';
 
 import {CREATED_EVENT_LBL, GET_EVENT_ERROR, UPLOAD_IMAGE_ERR_LBL} from "../constants/EventConstants";
-import {useNavigate, useSearchParams} from "react-router-dom";
+import {useLocation, useNavigate, useSearchParams} from "react-router-dom";
 
 import FullCalendar from '@fullcalendar/react';
 import interactionPlugin from "@fullcalendar/interaction";
@@ -56,8 +56,6 @@ const EventView = () => {
 
     const [events, setEvents] = React.useState([]);
 
-    const [reports, setReports] = React.useState([]);
-
     const [searchParams, setSearchParams] = useSearchParams();
 
     const [organizerName, setOrganizerName] = React.useState("");
@@ -70,7 +68,15 @@ const EventView = () => {
 
     const [questions, setQuestions] = React.useState([]);
 
+    const {state} = useLocation();
+
     const navigate = useNavigate();
+
+    let reports = [];
+
+    if (state) {
+        reports = state.reports;
+    }
 
   const getEventData = async () => {
     const eventId = searchParams.get(EVENT_ID_PARAM);
@@ -106,8 +112,6 @@ const EventView = () => {
                 setOrganizerName(response.organizerName);
 
                 setQuestions(response.faq);
-
-                setReports(response.reports);
 
                 if (response.latitude && response.longitude) {
                     setCenter({

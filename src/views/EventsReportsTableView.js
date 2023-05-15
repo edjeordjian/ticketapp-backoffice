@@ -139,7 +139,11 @@ export default function EventsReportsTableView(props) {
           flexDirection: 'column'
         }}>
           <Button onClick={async () => {
-                    navigate(`${EVENT_VIEW_PATH}?${EVENT_ID_PARAM}=${e.id}`)
+                    navigate(`${EVENT_VIEW_PATH}?${EVENT_ID_PARAM}=${e.id}`, {
+                      state: {
+                        reports: e.reports
+                      }
+                    })
                   }}> Ver denuncias
           </Button>
 
