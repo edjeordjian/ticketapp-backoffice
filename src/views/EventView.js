@@ -1,11 +1,11 @@
 import * as React from "react";
 
-import {Box} from "@mui/material";
+import {Box, Button} from "@mui/material";
 import Typography from "@mui/material/Typography";
-import {getTo} from "../services/helpers/RequestHelper";
+import {getTo, patchTo} from "../services/helpers/RequestHelper";
 
 import {
-    EVENT_ID_PARAM,
+    EVENT_ID_PARAM, EVENT_SUSPEND_URL,
     EVENT_TYPES_URL,
     EVENT_URL,
     EVENT_VIEW_PATH,
@@ -70,12 +70,14 @@ const EventView = () => {
 
     const {state} = useLocation();
 
+    const [isBlocked, setIsBlocked] = React.useState(state ? state.event.isBlocked : false);
+
     const navigate = useNavigate();
 
-    let reports = [];
+    let event;
 
     if (state) {
-        reports = state.reports;
+        event = state.event;
     }
 
   const getEventData = async () => {
@@ -158,6 +160,38 @@ const EventView = () => {
             });
     }
 
+  async function handleSuspend() {
+        const url = `${process.env.REACT_APP_BACKEND_HOST}${EVENT_SUSPEND_URL}`;
+
+        const requestBody = {
+            eventId: event.id,
+
+            suspend: ! isBlocked
+        }
+
+        const response = await patchTo(url, requestBody, userToken);
+
+        if (response.error) {
+            SweetAlert2.fire({
+                icon: "error",
+                title: response.error,
+                confirmButtonText: "Aceptar"
+            }).then(r => {
+                if (response.error
+                    .toLowerCase()
+                    .includes("token")) {
+                    logOut().then(navigate("/"));
+                }
+            });
+        } else {
+            SweetAlert2.fire({
+                icon: "info",
+                title: response.message,
+                confirmButtonText: "Aceptar"
+            }).then(_ => setIsBlocked(! isBlocked));
+        }
+    }
+
     React.useEffect(() => {
         getTo(`${process.env.REACT_APP_BACKEND_HOST}${EVENT_TYPES_URL}`,
           userToken)
@@ -181,8 +215,23 @@ const EventView = () => {
     return (
         <main style={{backgroundColor: "#eeeeee", minHeight: "100vh"}}>
             <Box style={createEventStyles.formContainer}>
-                <Typography variant="h2">{name}
-                </Typography>
+                <Box style={{
+                    display: "flex"
+                }}>
+                    <Typography variant={"h2"}
+                                style={{
+                                    flex: "3"
+                                }}>{name}
+                    </Typography>
+
+                    <Button onClick={async () => {
+                        await handleSuspend()
+                    }}>
+                        {
+                            (isBlocked) ? "Activar evento" : "Suspender evento"
+                        }
+                    </Button>
+                </Box>
 
                 <BlankLine number={2}/>
 
@@ -198,7 +247,8 @@ const EventView = () => {
                             height: 600,
                         }}>
                         {
-                            reports.map((report, idx) => {
+                            (event
+                            ? event.reports.map((report, idx) => {
                                     return (
                                         <Box key={idx}>
                                             <Typography variant="h5"
@@ -241,6 +291,8 @@ const EventView = () => {
                                         </Box>
                                     )
                                 }
+                                )
+                                : {}
                             )
                         }
                     </Scrollbars>

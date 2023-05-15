@@ -131,8 +131,7 @@ export default function UserReportsTableView(props) {
           <Button onClick={async () => {
                     navigate(USER_REPORTS_LIST_PATH, {
                       state: {
-                        userName: user.name,
-                        reports: user.reports
+                        user: user
                       }
                     })
                   }}> Ver denuncias

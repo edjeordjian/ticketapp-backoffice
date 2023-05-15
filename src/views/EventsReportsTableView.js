@@ -141,7 +141,7 @@ export default function EventsReportsTableView(props) {
           <Button onClick={async () => {
                     navigate(`${EVENT_VIEW_PATH}?${EVENT_ID_PARAM}=${e.id}`, {
                       state: {
-                        reports: e.reports
+                        event: e
                       }
                     })
                   }}> Ver denuncias
