@@ -162,9 +162,15 @@ export default function EventsReportsTableView(props) {
     const e = params.row;
 
     return (
-        <Link to={`${EVENT_VIEW_PATH}?${EVENT_ID_PARAM}=${e.id}`}
-              style={{ textDecoration: 'none' }}>{e.name}
-        </Link>
+    <Button style={{textTransform: 'none'}}
+            onClick={async () => {
+      navigate(`${EVENT_VIEW_PATH}?${EVENT_ID_PARAM}=${e.id}`, {
+        state: {
+          event: e
+        }
+      })
+    }}> {e.name}
+    </Button>
     );
   }
 
