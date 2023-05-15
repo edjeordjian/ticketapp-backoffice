@@ -226,7 +226,7 @@ export default function EventsReportsTableView(props) {
           <Box style={{
             width: 800,
             position: 'absolute',
-            right: 650
+            right: 850
           }}>
            <Typography variant="h4">Eventos por denuncias
            </Typography>

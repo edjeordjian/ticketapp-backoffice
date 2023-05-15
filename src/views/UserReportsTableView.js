@@ -227,7 +227,7 @@ export default function UserReportsTableView(props) {
           <Box style={{
             width: 800,
             position: 'absolute',
-            right: 650
+            right: 850
           }}>
            <Typography variant="h4">Usuarios por denuncias
            </Typography>

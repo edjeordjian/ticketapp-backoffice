@@ -188,56 +188,58 @@ const EventView = () => {
 
                 <BlankLine/>
 
-                {
-                    reports.map((report, idx) => {
-                            return (
-                                <Scrollbars style={{
-                                    width: 1400,
-                                    height: 600,
-                                }}
-                                            key={idx}>
-                                    <Typography variant="h5"
-                                                display="block">
-                                        Usuario: {report.reporter}
-                                    </Typography>
+                    <Scrollbars
+                        style={{
+                            width: 1400,
+                            height: 600,
+                        }}>
+                        {
+                            reports.map((report, idx) => {
+                                    return (
+                                        <Box key={idx}>
+                                            <Typography variant="h5"
+                                                        display="block">
+                                                Usuario: {report.reporter}
+                                            </Typography>
 
-                                    <BlankLine />
+                                            <BlankLine />
 
-                                    <Typography variant="h5"
-                                                display="block">
-                                        Fecha: {report.date}
-                                    </Typography>
+                                            <Typography variant="h5"
+                                                        display="block">
+                                                Fecha: {report.date}
+                                            </Typography>
 
-                                    <BlankLine />
+                                            <BlankLine />
 
-                                    <Typography variant="h5"
-                                                display="block">
-                                        <strong> Motivo: </strong>
-                                    </Typography>
+                                            <Typography variant="h5"
+                                                        display="block">
+                                                <strong> Motivo: </strong>
+                                            </Typography>
 
-                                    <Typography variant="h5"
-                                                display="block">
-                                        {report.reason}
-                                    </Typography>
+                                            <Typography variant="h5"
+                                                        display="block">
+                                                {report.reason}
+                                            </Typography>
 
-                                    <BlankLine />
+                                            <BlankLine />
 
-                                    <Typography variant="h5"
-                                                display="block">
-                                        <strong> Texto de la denuncia: </strong>
-                                    </Typography>
+                                            <Typography variant="h5"
+                                                        display="block">
+                                                <strong> Texto de la denuncia: </strong>
+                                            </Typography>
 
-                                    <Typography variant="h5"
-                                                display="block">
-                                        {report.text}
-                                    </Typography>
+                                            <Typography variant="h5"
+                                                        display="block">
+                                                {report.text}
+                                            </Typography>
 
-                                    <BlankLine number={2}/>
-                                </Scrollbars>
+                                            <BlankLine number={2} />
+                                        </Box>
+                                    )
+                                }
                             )
                         }
-                    )
-                }
+                    </Scrollbars>
 
                 <BlankLine number={2}/>
 
