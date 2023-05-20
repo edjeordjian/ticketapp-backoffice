@@ -15,7 +15,7 @@ import {matrixStyles} from "../styles/events/matrixStyles";
 
 import {
   EVENTS_PATH, USER_BLOCK_URL, USER_ALL, REPORTS_PATH,
-  START_DATE_PARAM, END_DATE_PARAM, USER_REPORTS_LIST_PATH
+  START_DATE_PARAM, END_DATE_PARAM, USER_REPORTS_LIST_PATH, BACKEND_HOST
 } from "../constants/URLs";
 
 
@@ -24,6 +24,7 @@ import { DataGrid } from '@mui/x-data-grid';
 import Typography from "@mui/material/Typography";
 import BasicDatePicker from "../components/BasicDatePicker";
 import Swal from "sweetalert2";
+import {confirm_suspension_constants} from "../constants/UserConstants";
 
 export default function UserReportsTableView(props) {
   const navigate = useNavigate();
@@ -90,11 +91,27 @@ export default function UserReportsTableView(props) {
   }
 
   async function handleBlock(user) {
-    const url = `${process.env.REACT_APP_BACKEND_HOST}${USER_BLOCK_URL}`;
+    const url = `${BACKEND_HOST}${USER_BLOCK_URL}`;
 
     const requestBody = {
       email: user.email,
       block: ! user.isBlocked
+    }
+
+    const action = (user.isBlocked)
+        ? "activar al usuario"
+        : "suspender al usuario";
+
+    const confirmation = await SweetAlert2.fire({
+      icon: "warning",
+      title: confirm_suspension_constants(action),
+      confirmButtonText: "Sí",
+      cancelButtonText: 'No',
+      showCancelButton: true
+    });
+
+    if (! confirmation.isConfirmed) {
+      return;
     }
 
     const response = await patchTo(url, requestBody, userToken);
@@ -147,7 +164,7 @@ export default function UserReportsTableView(props) {
   }
 
   async function getUsers(useFilters) {
-    let url = `${process.env.REACT_APP_BACKEND_HOST}${USER_ALL}`;
+    let url = `${BACKEND_HOST}${USER_ALL}`;
 
     if (useFilters) {
       url += `?${START_DATE_PARAM}=${startDate}&${END_DATE_PARAM}=${endDate}`;

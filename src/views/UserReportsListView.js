@@ -3,13 +3,19 @@ import { Box } from "@mui/system";
 import * as React from "react";
 import {useLocation, useNavigate} from "react-router-dom";
 import {
-    ADD_TO_GROUP_PATH, EVENT_CREATE_PATH, EVENT_ID_PARAM, EVENT_SUSPEND_URL, EVENT_VIEW_PATH, USER_BLOCK_URL
+    ADD_TO_GROUP_PATH,
+    BACKEND_HOST,
+    EVENT_CREATE_PATH,
+    EVENT_ID_PARAM,
+    EVENT_VIEW_PATH,
+    USER_BLOCK_URL
 } from "../constants/URLs";
 import { useMainContext } from "../services/contexts/MainContext";
 import { BlankLine } from "../components/BlankLine";
 import { Scrollbars } from 'react-custom-scrollbars';
 import {patchTo} from "../services/helpers/RequestHelper";
 import SweetAlert2 from "sweetalert2";
+import {confirm_suspension_constants} from "../constants/UserConstants";
 
 const styles = {
     title: {
@@ -53,11 +59,27 @@ export default function UserReportsListView() {
     }
 
     async function handleBlock() {
-        const url = `${process.env.REACT_APP_BACKEND_HOST}${USER_BLOCK_URL}`;
+        const url = `${BACKEND_HOST}${USER_BLOCK_URL}`;
 
         const requestBody = {
             email: user.email,
             block: ! isBlocked
+        }
+
+        const action = (user.isBlocked)
+            ? "activar al usuario"
+            : "suspender al usuario";
+
+        const confirmation = await SweetAlert2.fire({
+            icon: "warning",
+            title: confirm_suspension_constants(action),
+            confirmButtonText: "Sí",
+            cancelButtonText: 'No',
+            showCancelButton: true
+        });
+
+        if (! confirmation.isConfirmed) {
+            return;
         }
 
         const response = await patchTo(url, requestBody, userToken);
@@ -92,15 +114,8 @@ export default function UserReportsListView() {
                     }}
                             onClick={async () => {
                                 navigate(`${EVENT_VIEW_PATH}?${EVENT_ID_PARAM}=${source.eventId}`);
-                            }}>{source.eventName}
+                            }}>{source.eventName} - {source.date}
                     </Button>
-
-                <BlankLine />
-
-                <Typography variant="h5"
-                            display="block">
-                    Fecha: {source.date}
-                </Typography>
 
                 <BlankLine />
 

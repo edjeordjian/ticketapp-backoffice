@@ -5,6 +5,7 @@ import Typography from "@mui/material/Typography";
 import {getTo, patchTo} from "../services/helpers/RequestHelper";
 
 import {
+    BACKEND_HOST,
     EVENT_ID_PARAM, EVENT_SUSPEND_URL,
     EVENT_TYPES_URL,
     EVENT_URL,
@@ -32,6 +33,7 @@ import { useMainContext } from "../services/contexts/MainContext";
 import { GoogleMap, MarkerF, useJsApiLoader } from "@react-google-maps/api";
 
 import { Scrollbars } from 'react-custom-scrollbars';
+import {confirm_suspension_constants} from "../constants/UserConstants";
 
 const EventView = () => {
     const [name, setName] = React.useState("");
@@ -85,7 +87,7 @@ const EventView = () => {
   const getEventData = async () => {
     const eventId = searchParams.get(EVENT_ID_PARAM);
 
-        getTo(`${process.env.REACT_APP_BACKEND_HOST}${EVENT_URL}?${EVENT_ID_PARAM}=${eventId}&${GET_REPORTS_PARAM}=true`,
+        getTo(`${BACKEND_HOST}${EVENT_URL}?${EVENT_ID_PARAM}=${eventId}&${GET_REPORTS_PARAM}=true`,
           userToken)
             .then(response => {
                 if (response.error) {
@@ -165,12 +167,28 @@ const EventView = () => {
     }
 
   async function handleSuspend() {
-        const url = `${process.env.REACT_APP_BACKEND_HOST}${EVENT_SUSPEND_URL}`;
+        const url = `${BACKEND_HOST}${EVENT_SUSPEND_URL}`;
 
         const requestBody = {
             eventId: event.id,
 
             suspend: ! isBlocked
+        }
+
+        const action = (isBlocked)
+              ? "activar el evento"
+              : "suspender el evento";
+
+        const confirmation = await SweetAlert2.fire({
+              icon: "warning",
+              title: confirm_suspension_constants(action),
+              confirmButtonText: "Sí",
+              cancelButtonText: 'No',
+              showCancelButton: true
+          });
+
+        if (! confirmation.isConfirmed) {
+              return;
         }
 
         const response = await patchTo(url, requestBody, userToken);
@@ -197,7 +215,7 @@ const EventView = () => {
     }
 
     React.useEffect(() => {
-        getTo(`${process.env.REACT_APP_BACKEND_HOST}${EVENT_TYPES_URL}`,
+        getTo(`${BACKEND_HOST}${EVENT_TYPES_URL}`,
           userToken)
             .then(res => {
                 if (res.error !== undefined) {
@@ -256,14 +274,7 @@ const EventView = () => {
                                         <Box key={idx}>
                                             <Typography variant="h5"
                                                         display="block">
-                                                Usuario: {report.reporter}
-                                            </Typography>
-
-                                            <BlankLine />
-
-                                            <Typography variant="h5"
-                                                        display="block">
-                                                Fecha: {report.date}
+                                                {report.reporter} - {report.date}
                                             </Typography>
 
                                             <BlankLine />
@@ -295,7 +306,6 @@ const EventView = () => {
                                     )
                                 }
                                 )
-                                : {}
                             )
                         }
                     </Scrollbars>

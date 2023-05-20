@@ -10,7 +10,10 @@ import {useNavigate} from "react-router-dom";
 
 import Typography from "@mui/material/Typography";
 
-import {AUTHENTICATION_ERR_LBL, BACKEND_HOST, LOG_IN_LBL} from "../../constants/LogInConstants";
+import {
+    AUTHENTICATION_ERR_LBL,
+    LOG_IN_LBL
+} from "../../constants/LogInConstants";
 
 import SweetAlert2 from 'sweetalert2';
 
@@ -18,7 +21,11 @@ import {signInButtonStyle} from "../../styles/login/SignInButtonStyle";
 
 import {postTo} from "../../services/helpers/RequestHelper";
 
-import {EVENTS_PATH, REPORTS_PATH, SIGN_IN_URL, USER_REPORTS_PATH} from "../../constants/URLs";
+import {
+    BACKEND_HOST,
+    SIGN_IN_URL,
+    USER_REPORTS_PATH
+} from "../../constants/URLs";
 
 import Box from "@mui/material/Box";
 
@@ -63,21 +70,9 @@ const SignInButton = (props) => {
                 };
             } );
 
-        /*
+
         if (firebaseResponse && firebaseResponse.error) {
             console.log(firebaseResponse.error);
-        }  */
-
-      if (firebaseResponse.error
-            && firebaseResponse.error.includes("auth/user-not-found")) {
-            firebaseResponse = await createUserWithEmailAndPassword(auth,
-                emailRef.current,
-                passwordRef.current
-            ).catch((error) => {
-                console.log(error.toString());
-
-                return error.toString();
-            });
         }
 
         if (firebaseResponse.user === undefined) {
