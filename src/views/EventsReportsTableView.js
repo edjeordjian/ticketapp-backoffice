@@ -40,7 +40,7 @@ export default function EventsReportsTableView(props) {
 
   const [loading, setLoading] = React.useState(true);
 
-  const { getUserId, getUserToken } = useMainContext();
+  const {getUserId, getUserToken} = useMainContext();
 
   const [events, setEvents] = React.useState([]);
 

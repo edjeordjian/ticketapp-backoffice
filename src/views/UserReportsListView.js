@@ -86,16 +86,14 @@ export default function UserReportsListView() {
     const displayReports = (source) => {
         return (
             <Box key={source.eventId}>
-                <a
-                    onClick={() =>
-                        navigate(`${EVENT_VIEW_PATH}?${EVENT_ID_PARAM}=${source.eventId}`)
-                    }>
-                    <Typography variant="h4"
-                                color={"#3a50ba"}
-                                display={"block"}>
-                        {source.eventName}
-                    </Typography>
-                </a>
+                    <Button style={{
+                        fontSize: '25px',
+                        textTransform: 'none'
+                    }}
+                            onClick={async () => {
+                                navigate(`${EVENT_VIEW_PATH}?${EVENT_ID_PARAM}=${source.eventId}`);
+                            }}>{source.eventName}
+                    </Button>
 
                 <BlankLine />
 

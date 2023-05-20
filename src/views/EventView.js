@@ -72,6 +72,8 @@ const EventView = () => {
 
     const [isBlocked, setIsBlocked] = React.useState(state ? state.event.isBlocked : false);
 
+    const [reports, setReports] = React.useState([]);
+
     const navigate = useNavigate();
 
     let event;
@@ -114,6 +116,8 @@ const EventView = () => {
                 setOrganizerName(response.organizerName);
 
                 setQuestions(response.faq);
+
+                setReports(response.reports);
 
                 if (response.latitude && response.longitude) {
                     setCenter({
@@ -247,8 +251,7 @@ const EventView = () => {
                             height: 600,
                         }}>
                         {
-                            (event
-                            ? event.reports.map((report, idx) => {
+                            (reports.map((report, idx) => {
                                     return (
                                         <Box key={idx}>
                                             <Typography variant="h5"
