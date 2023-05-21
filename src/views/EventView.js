@@ -1,27 +1,28 @@
 import * as React from "react";
 
-import {Box, Button} from "@mui/material";
+import { Box, Button } from "@mui/material";
 import Typography from "@mui/material/Typography";
-import {getTo, patchTo} from "../services/helpers/RequestHelper";
+import { getTo, patchTo } from "../services/helpers/RequestHelper";
 
 import {
-    EVENT_ID_PARAM, EVENT_SUSPEND_URL,
-    EVENT_TYPES_URL,
-    EVENT_URL,
-    EVENT_VIEW_PATH,
-    EVENTS_PATH,
-    GET_REPORTS_PARAM
+  EVENT_ID_PARAM,
+  EVENT_SUSPEND_URL,
+  EVENT_TYPES_URL,
+  EVENT_URL,
+  EVENT_VIEW_PATH,
+  EVENTS_PATH,
+  GET_REPORTS_PARAM,
 } from "../constants/URLs";
 
-import {BlankLine} from "../components/BlankLine";
-import {createEventStyle as createEventStyles} from "../styles/events/CreateEventStyle";
+import { BlankLine } from "../components/BlankLine";
+import { createEventStyle as createEventStyles } from "../styles/events/CreateEventStyle";
 
-import SweetAlert2 from 'sweetalert2';
+import SweetAlert2 from "sweetalert2";
 
-import {CREATED_EVENT_LBL, GET_EVENT_ERROR, UPLOAD_IMAGE_ERR_LBL} from "../constants/EventConstants";
-import {useLocation, useNavigate, useSearchParams} from "react-router-dom";
+import { GET_EVENT_ERROR } from "../constants/EventConstants";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
-import FullCalendar from '@fullcalendar/react';
+import FullCalendar from "@fullcalendar/react";
 import interactionPlugin from "@fullcalendar/interaction";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import { tagStyle } from "../styles/events/EventStyles";
@@ -31,384 +32,389 @@ import ReactHtmlParser from "react-html-parser";
 import { useMainContext } from "../services/contexts/MainContext";
 import { GoogleMap, MarkerF, useJsApiLoader } from "@react-google-maps/api";
 
-import { Scrollbars } from 'react-custom-scrollbars';
+import { Scrollbars } from "react-custom-scrollbars";
 
 const EventView = () => {
-    const [name, setName] = React.useState("");
+  const [name, setName] = React.useState("");
 
-    const [richDescription, setRichDescription] = React.useState("");
+  const [richDescription, setRichDescription] = React.useState("");
 
-    const [capacity, setCapacity] = React.useState("");
+  const [capacity, setCapacity] = React.useState("");
 
-    const [types, setTypes] = React.useState([]);
+  const [types, setTypes] = React.useState([]);
 
-    const [images, setImages] = React.useState([]);
+  const [images, setImages] = React.useState([]);
 
-    const [selectedDate, setSelectedDate] = React.useState(null);
+  const [selectedDate, setSelectedDate] = React.useState(null);
 
-    const [selectedTime, setSelectedTime] = React.useState(null);
+  const [selectedTime, setSelectedTime] = React.useState(null);
 
-    const [address, setAddress] = React.useState("");
+  const [address, setAddress] = React.useState("");
 
-    const [selectableTypes, setSelectableTypes] = React.useState([]);
+  const [selectableTypes, setSelectableTypes] = React.useState([]);
 
-    const [loading, setLoading] = React.useState(true);
+  const [loading, setLoading] = React.useState(true);
 
-    const [events, setEvents] = React.useState([]);
+  const [events, setEvents] = React.useState([]);
 
-    const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
-    const [organizerName, setOrganizerName] = React.useState("");
+  const [organizerName, setOrganizerName] = React.useState("");
 
-    const { getUserId, getUserToken } = useMainContext();
+  const { getUserId, getUserToken } = useMainContext();
 
-    const [userToken, setUserToken] = React.useState(getUserToken());
+  const [userToken, setUserToken] = React.useState(getUserToken());
 
-    const [center, setCenter] = React.useState(null);
+  const [center, setCenter] = React.useState(null);
 
-    const [questions, setQuestions] = React.useState([]);
+  const [questions, setQuestions] = React.useState([]);
 
-    const {state} = useLocation();
+  const [reports, setReports] = React.useState([]);
 
-    const [isBlocked, setIsBlocked] = React.useState(state ? state.event.isBlocked : false);
+  const { state } = useLocation();
 
-    const navigate = useNavigate();
+  const [isBlocked, setIsBlocked] = React.useState(
+    state ? state.event.isBlocked : false
+  );
 
-    let event;
+  const navigate = useNavigate();
 
-    if (state) {
-        event = state.event;
-    }
+  let event;
+
+  if (state) {
+    event = state.event;
+  }
 
   const getEventData = async () => {
     const eventId = searchParams.get(EVENT_ID_PARAM);
 
-        getTo(`${process.env.REACT_APP_BACKEND_HOST}${EVENT_URL}?${EVENT_ID_PARAM}=${eventId}&${GET_REPORTS_PARAM}=true`,
-          userToken)
-            .then(response => {
-                if (response.error) {
-                    SweetAlert2.fire({
-                        title: GET_EVENT_ERROR,
-                        icon: "error"
-                    }).then();
+    getTo(
+      `${process.env.REACT_APP_BACKEND_HOST}${EVENT_URL}?${EVENT_ID_PARAM}=${eventId}&${GET_REPORTS_PARAM}=true`,
+      userToken
+    ).then((response) => {
+      if (response.error) {
+        SweetAlert2.fire({
+          title: GET_EVENT_ERROR,
+          icon: "error",
+        }).then();
 
-                    setLoading(false);
+        setLoading(false);
 
-                    return;
-                }
+        return;
+      }
+      console.log(response);
 
-                setName(response.name);
+      setName(response.name);
 
-                setRichDescription(response.description);
+      setRichDescription(response.description);
 
-                setCapacity(response.capacity);
+      setCapacity(response.capacity);
 
-                setTypes(response.types_names);
+      setTypes(response.types_names);
 
-                setSelectedDate(response.date);
+      setSelectedDate(response.date);
 
-                setSelectedTime(response.time);
+      setSelectedTime(response.time);
 
-                setAddress(response.address);
+      setAddress(response.address);
 
-                setOrganizerName(response.organizerName);
+      setOrganizerName(response.organizerName);
 
-                setQuestions(response.faq);
+      setQuestions(response.faq);
 
-                if (response.latitude && response.longitude) {
-                    setCenter({
-                        lat: Number(response.latitude),
-                        lng: Number(response.longitude)
-                    });
-                }
+      setReports(response.reports);
 
-                const mappedSpaces = response.agenda.map((space) => {
-                    return {
-                        title: space.title,
-                        start: turnDateStringToToday(space.start),
-                        end: turnDateStringToToday(space.end, true)
-                    }
-                })
+      if (response.latitude && response.longitude) {
+        setCenter({
+          lat: Number(response.latitude),
+          lng: Number(response.longitude),
+        });
+      }
 
-                setEvents(mappedSpaces);
+      const mappedSpaces = response.agenda.map((space) => {
+        return {
+          title: space.title,
+          start: turnDateStringToToday(space.start),
+          end: turnDateStringToToday(space.end, true),
+        };
+      });
 
-                const definedImages = [];
+      setEvents(mappedSpaces);
 
-                if (response.pictures.length > 0) {
-                    definedImages.push(response.pictures[0]);
-                }
+      const definedImages = [];
 
-                if (response.pictures.length > 1) {
-                    definedImages.push(response.pictures[1]);
-                }
+      if (response.pictures.length > 0) {
+        definedImages.push(response.pictures[0]);
+      }
 
-                if (response.pictures.length > 2) {
-                    definedImages.push(response.pictures[2]);
-                }
+      if (response.pictures.length > 1) {
+        definedImages.push(response.pictures[1]);
+      }
 
-                if (response.pictures.length > 3) {
-                    definedImages.push(response.pictures[3]);
-                }
+      if (response.pictures.length > 2) {
+        definedImages.push(response.pictures[2]);
+      }
 
-                if (response.pictures.length > 4) {
-                    definedImages.push(response.pictures[4]);
-                }
+      if (response.pictures.length > 3) {
+        definedImages.push(response.pictures[3]);
+      }
 
-                setImages(definedImages);
+      if (response.pictures.length > 4) {
+        definedImages.push(response.pictures[4]);
+      }
 
-                setLoading(false);
-            });
-    }
+      setImages(definedImages);
+
+      setLoading(false);
+    });
+  };
 
   async function handleSuspend() {
-        const url = `${process.env.REACT_APP_BACKEND_HOST}${EVENT_SUSPEND_URL}`;
+    const url = `${process.env.REACT_APP_BACKEND_HOST}${EVENT_SUSPEND_URL}`;
 
-        const requestBody = {
-            eventId: event.id,
+    const requestBody = {
+      eventId: event.id,
 
-            suspend: ! isBlocked
+      suspend: !isBlocked,
+    };
+
+    const response = await patchTo(url, requestBody, userToken);
+
+    if (response.error) {
+      SweetAlert2.fire({
+        icon: "error",
+        title: response.error,
+        confirmButtonText: "Aceptar",
+      }).then((r) => {
+        if (response.error.toLowerCase().includes("token")) {
+          logOut().then(navigate("/"));
         }
+      });
+    } else {
+      SweetAlert2.fire({
+        icon: "info",
+        title: response.message,
+        confirmButtonText: "Aceptar",
+      }).then((_) => setIsBlocked(!isBlocked));
+    }
+  }
 
-        const response = await patchTo(url, requestBody, userToken);
-
-        if (response.error) {
-            SweetAlert2.fire({
-                icon: "error",
-                title: response.error,
-                confirmButtonText: "Aceptar"
-            }).then(r => {
-                if (response.error
-                    .toLowerCase()
-                    .includes("token")) {
-                    logOut().then(navigate("/"));
-                }
-            });
+  React.useEffect(() => {
+    getTo(`${process.env.REACT_APP_BACKEND_HOST}${EVENT_TYPES_URL}`, userToken)
+      .then((res) => {
+        if (res.error !== undefined) {
+          SweetAlert2.fire({
+            title: res.error,
+            icon: "error",
+          }).then();
         } else {
-            SweetAlert2.fire({
-                icon: "info",
-                title: response.message,
-                confirmButtonText: "Aceptar"
-            }).then(_ => setIsBlocked(! isBlocked));
+          setSelectableTypes(res.event_types);
         }
-    }
+      })
+      .then(getEventData);
+  }, []);
 
-    React.useEffect(() => {
-        getTo(`${process.env.REACT_APP_BACKEND_HOST}${EVENT_TYPES_URL}`,
-          userToken)
-            .then(res => {
-                if (res.error !== undefined) {
-                    SweetAlert2.fire({
-                        title: res.error,
-                        icon: "error"
-                    }).then();
-                } else {
-                    setSelectableTypes(res.event_types);
-                }
-            })
-            .then(getEventData);
-    }, []);
+  if (loading) {
+    return <p></p>;
+  }
 
-    if (loading) {
-        return <p></p>
-    }
+  console.log(reports)
+  return (
+    <main style={{ backgroundColor: "#eeeeee", minHeight: "100vh" }}>
+      <Box style={createEventStyles.formContainer}>
+        <Box
+          style={{
+            display: "flex",
+          }}
+        >
+          <Typography
+            variant={"h2"}
+            style={{
+              flex: "3",
+            }}
+          >
+            {name}
+          </Typography>
 
-    return (
-        <main style={{backgroundColor: "#eeeeee", minHeight: "100vh"}}>
-            <Box style={createEventStyles.formContainer}>
-                <Box style={{
-                    display: "flex"
-                }}>
-                    <Typography variant={"h2"}
-                                style={{
-                                    flex: "3"
-                                }}>{name}
+          <Button
+            onClick={async () => {
+              await handleSuspend();
+            }}
+          >
+            {isBlocked ? "Activar evento" : "Suspender evento"}
+          </Button>
+        </Box>
+
+        <BlankLine number={2} />
+
+        <Typography variant="h3">
+          <strong>Denuncias</strong>
+        </Typography>
+
+        <BlankLine />
+
+        <Scrollbars
+          style={{
+            width: 1400,
+            height: 600,
+          }}
+        >
+          {reports
+            ? reports.map((report, idx) => {
+                console.log(report)
+                return (
+                  <Box key={idx}>
+                    <Typography variant="h5" display="block">
+                      Usuario: {report.reporter}
                     </Typography>
 
-                    <Button onClick={async () => {
-                        await handleSuspend()
-                    }}>
-                        {
-                            (isBlocked) ? "Activar evento" : "Suspender evento"
-                        }
-                    </Button>
-                </Box>
+                    <BlankLine />
 
-                <BlankLine number={2}/>
+                    <Typography variant="h5" display="block">
+                      Fecha: {report.date}
+                    </Typography>
 
-                <Typography variant="h3">
-                    <strong>Denuncias</strong>
-                </Typography>
+                    <BlankLine />
 
-                <BlankLine/>
+                    <Typography variant="h5" display="block">
+                      <strong> Motivo: </strong>
+                    </Typography>
 
-                    <Scrollbars
-                        style={{
-                            width: 1400,
-                            height: 600,
-                        }}>
-                        {
-                            (event
-                            ? event.reports.map((report, idx) => {
-                                    return (
-                                        <Box key={idx}>
-                                            <Typography variant="h5"
-                                                        display="block">
-                                                Usuario: {report.reporter}
-                                            </Typography>
+                    <Typography variant="h5" display="block">
+                      {report.reason}
+                    </Typography>
 
-                                            <BlankLine />
+                    <BlankLine />
 
-                                            <Typography variant="h5"
-                                                        display="block">
-                                                Fecha: {report.date}
-                                            </Typography>
+                    <Typography variant="h5" display="block">
+                      <strong> Texto de la denuncia: </strong>
+                    </Typography>
 
-                                            <BlankLine />
+                    <Typography variant="h5" display="block">
+                      {report.text}
+                    </Typography>
 
-                                            <Typography variant="h5"
-                                                        display="block">
-                                                <strong> Motivo: </strong>
-                                            </Typography>
+                    <BlankLine number={2} />
+                  </Box>
+                );
+              })
+            : {}}
+        </Scrollbars>
 
-                                            <Typography variant="h5"
-                                                        display="block">
-                                                {report.reason}
-                                            </Typography>
+        <BlankLine number={2} />
 
-                                            <BlankLine />
+        <Typography variant="h3">
+          <strong>Información del evento</strong>
+        </Typography>
 
-                                            <Typography variant="h5"
-                                                        display="block">
-                                                <strong> Texto de la denuncia: </strong>
-                                            </Typography>
+        <BlankLine />
 
-                                            <Typography variant="h5"
-                                                        display="block">
-                                                {report.text}
-                                            </Typography>
+        <ImageCarousel images={images} />
 
-                                            <BlankLine number={2} />
-                                        </Box>
-                                    )
-                                }
-                                )
-                                : {}
-                            )
-                        }
-                    </Scrollbars>
+        <BlankLine number={2} />
 
-                <BlankLine number={2}/>
+        {types.map((type, idx) => (
+          <b key={idx} style={tagStyle}>
+            {type}
+          </b>
+        ))}
 
-                <Typography variant="h3">
-                    <strong>Información del evento</strong>
-                </Typography>
+        <BlankLine number={2} />
 
-                <BlankLine/>
+        {center ? (
+          <GoogleMap
+            mapContainerStyle={{
+              width: "800px",
+              height: "400px",
+            }}
+            center={center}
+            zoom={17}
+          >
+            <MarkerF position={center} />
+          </GoogleMap>
+        ) : (
+          <></>
+        )}
 
-                <ImageCarousel images={images}/>
+        <BlankLine />
 
-                <BlankLine number={2}/>
+        <div>{ReactHtmlParser(richDescription)}</div>
 
-                {(
-                    types.map((type, idx) => (
-                    <b key={idx}
-                       style={tagStyle}>{type}
-                    </b>
-                    ))
-                )}
+        <BlankLine number={2} />
 
-                <BlankLine number={2}/>
+        <Typography variant="h5">
+          <b>Capacidad</b>: {capacity}
+        </Typography>
 
-                {center ? (
-                  <GoogleMap
-                    mapContainerStyle={{
-                        width: "800px",
-                        height: "400px"
-                    }}
+        <BlankLine />
 
-                    center={center}
+        <Typography variant="h5">
+          <b>Dirección</b>: {address}
+        </Typography>
 
-                    zoom={17}
-                  >
-                      <MarkerF position={center} />
-                  </GoogleMap>
-                ) : <></>}
+        <BlankLine />
 
-                <BlankLine />
+        <Typography variant="h5">
+          <b>Fecha</b>: {selectedDate}
+        </Typography>
 
-                <div>{ReactHtmlParser(richDescription)}
-                </div>
+        <BlankLine />
 
-                <BlankLine number={2}/>
+        <Typography variant="h5">
+          <b>Hora</b>: {selectedTime}
+        </Typography>
 
-                <Typography variant="h5"><b>Capacidad</b>: {capacity}
-                </Typography>
+        <BlankLine />
 
-                <BlankLine/>
+        <Typography variant="h5">
+          <b>Organizador</b>: {organizerName}
+        </Typography>
 
-                <Typography variant="h5"><b>Dirección</b>: {address}
-                </Typography>
+        <BlankLine />
 
-                <BlankLine/>
+        <Typography variant="h5">
+          <b>FAQ</b>
+        </Typography>
 
-                <Typography variant="h5"><b>Fecha</b>: {selectedDate}
-                </Typography>
-
-                <BlankLine/>
-
-                <Typography variant="h5"><b>Hora</b>: {selectedTime}
-                </Typography>
-
-                <BlankLine/>
-
-                <Typography variant="h5"><b>Organizador</b>: {organizerName}
-                </Typography>
-
-                <BlankLine/>
-
-                <Typography variant="h5">
-                    <b>FAQ</b>
-                </Typography>
-
+        <Box>
+          {questions.map((question, i) => (
+            <Box key={i}>
+              {
                 <Box>
-                    {questions.map((question, i) => (
-                      <Box key={i}>
-                          {
-                              <Box>
-                                  <Typography sx={{ fontWeight: "bold" }}>
-                                      P: {question.question}
-                                  </Typography>
-                                  <Typography sx={{ fontStyle: "italic" }}>
-                                      R: {question.answer}
-                                  </Typography>
-                              </Box>
-                          }
-                      </Box>
-                    ))}
+                  <Typography sx={{ fontWeight: "bold" }}>
+                    P: {question.question}
+                  </Typography>
+                  <Typography sx={{ fontStyle: "italic" }}>
+                    R: {question.answer}
+                  </Typography>
                 </Box>
-
-                <BlankLine/>
-
-                {loading ? (
-                    <p></p>
-                ) : (
-                    <FullCalendar
-                        plugins={[timeGridPlugin, interactionPlugin]}
-                        editable={false}
-                        selectable={false}
-                        initialView='timeGridDay'
-                        dayHeaderContent={() => ''}
-                        slotLabelInterval={{minutes: 30}}
-                        contentHeight="1000px"
-                        events={events}
-                        allDaySlot={false}
-                        headerToolbar={false}
-                        eventResizableFromStart={true}/>)}
+              }
             </Box>
-        </main>
-    );
-}
+          ))}
+        </Box>
 
-export {
-    EventView
+        <BlankLine />
+
+        {loading ? (
+          <p></p>
+        ) : (
+          <FullCalendar
+            plugins={[timeGridPlugin, interactionPlugin]}
+            editable={false}
+            selectable={false}
+            initialView="timeGridDay"
+            dayHeaderContent={() => ""}
+            slotLabelInterval={{ minutes: 30 }}
+            contentHeight="1000px"
+            events={events}
+            allDaySlot={false}
+            headerToolbar={false}
+            eventResizableFromStart={true}
+          />
+        )}
+      </Box>
+    </main>
+  );
 };
+
+export { EventView };
