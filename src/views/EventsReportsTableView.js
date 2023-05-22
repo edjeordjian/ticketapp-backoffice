@@ -26,7 +26,7 @@ import {
   EVENT_VIEW_PATH,
   EVENT_ID_PARAM,
   EVENT_CANCEL_URL,
-  EVENT_SUSPEND_URL
+  EVENT_SUSPEND_URL, BACKEND_HOST
 } from "../constants/URLs";
 
 
@@ -34,13 +34,14 @@ import { ThemeProvider } from '@mui/material/styles';
 import { DataGrid } from '@mui/x-data-grid';
 import Typography from "@mui/material/Typography";
 import BasicDatePicker from "../components/BasicDatePicker";
+import {confirm_suspension_constants} from "../constants/UserConstants";
 
 export default function EventsReportsTableView(props) {
   const navigate = useNavigate();
 
   const [loading, setLoading] = React.useState(true);
 
-  const { getUserId, getUserToken } = useMainContext();
+  const {getUserId, getUserToken} = useMainContext();
 
   const [events, setEvents] = React.useState([]);
 
@@ -100,11 +101,27 @@ export default function EventsReportsTableView(props) {
   }
 
   async function handleSuspend(event) {
-    const url = `${process.env.REACT_APP_BACKEND_HOST}${EVENT_SUSPEND_URL}`;
+    const url = `${BACKEND_HOST}${EVENT_SUSPEND_URL}`;
 
     const requestBody = {
       eventId: event.id,
       suspend: !event.isBlocked
+    }
+
+    const action = (event.isBlocked)
+        ? "activar el evento"
+        : "suspender el usuario";
+
+    const confirmation = await SweetAlert2.fire({
+      icon: "warning",
+      title: confirm_suspension_constants(action),
+      confirmButtonText: "Sí",
+      cancelButtonText: 'No',
+      showCancelButton: true
+    });
+
+    if (! confirmation.isConfirmed) {
+      return;
     }
 
     const response = await patchTo(url, requestBody, userToken);
@@ -175,7 +192,7 @@ export default function EventsReportsTableView(props) {
   }
 
   async function getEvents(useFilters) {
-    let url = `${process.env.REACT_APP_BACKEND_HOST}${EVENT_SEARCH_NAME_URL}`;
+    let url = `${BACKEND_HOST}${EVENT_SEARCH_NAME_URL}`;
 
     url += `?${ADMIN_PARAM}=true&${GET_REPORTS_PARAM}=true`;
 
