@@ -10,8 +10,11 @@ import * as SweetAlert2 from "sweetalert2";
 import { useMainContext } from "../services/contexts/MainContext";
 import { BlankLine } from "../components/BlankLine";
 import {dataGridTheme, eventListViewStyles, textTheme} from "../styles/events/ReportsListStyle";
-
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import BlockIcon from '@mui/icons-material/Block';
 import {AdminSwitch} from "../components/events/AdminSwitch";
+import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
 
 import {matrixStyles} from "../styles/events/matrixStyles";
 
@@ -155,7 +158,7 @@ export default function EventsReportsTableView(props) {
           display: 'flex',
           flexDirection: 'column'
         }}>
-          <Button onClick={async () => {
+          <Button endIcon={<VisibilityIcon />} onClick={async () => {
                     navigate(`${EVENT_VIEW_PATH}?${EVENT_ID_PARAM}=${e.id}`, {
                       state: {
                         event: e
@@ -264,7 +267,7 @@ export default function EventsReportsTableView(props) {
           <Box style={{
             width: 800,
             position: 'absolute',
-            right: 850
+            right: 790
           }}>
            <Typography variant="h4">Eventos por denuncias
            </Typography>
@@ -309,15 +312,15 @@ export default function EventsReportsTableView(props) {
                       }}>
                         <Box flex={8}>
                         </Box>
-                          <Box flex={1}>
+                          <Box flex={2}>
                             <Box onClick={handleUseFilter}>
-                              <Button>Filtrar por fecha</Button>
+                              <Button endIcon={<FilterAltIcon/>}>Filtrar por fecha</Button>
                             </Box>
                           </Box>
 
                           <Box flex={1}>
                             <Box onClick={handleDisableFilter}>
-                              <Button>Quitar filtro</Button>
+                              <Button endIcon={<FilterAltOffIcon/>} >Quitar filtro</Button>
                             </Box>
                           </Box>
                       </Box>
@@ -328,7 +331,7 @@ export default function EventsReportsTableView(props) {
             </TableBody>
           </Table>
         </div>
-        }
+        
 
         <BlankLine number={2}/>
 

@@ -10,8 +10,12 @@ import * as SweetAlert2 from "sweetalert2";
 import { useMainContext } from "../services/contexts/MainContext";
 import { BlankLine } from "../components/BlankLine";
 import {dataGridTheme, eventListViewStyles, textTheme} from "../styles/events/ReportsListStyle";
-
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import BlockIcon from '@mui/icons-material/Block';
 import {matrixStyles} from "../styles/events/matrixStyles";
+import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
+import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
 
 import {
   EVENTS_PATH, USER_BLOCK_URL, USER_ALL, REPORTS_PATH,
@@ -145,7 +149,7 @@ export default function UserReportsTableView(props) {
           display: 'flex',
           flexDirection: 'column'
         }}>
-          <Button onClick={async () => {
+          <Button endIcon={<VisibilityIcon />} onClick={async () => {
                     navigate(USER_REPORTS_LIST_PATH, {
                       state: {
                         user: user
@@ -153,12 +157,18 @@ export default function UserReportsTableView(props) {
                     })
                   }}> Ver denuncias
           </Button>
-
-          <Button onClick={() => handleBlock(user)}>
+          {(user.isBlocked) ?(
+          <Button endIcon={<ChangeCircleIcon/>} onClick={() => handleBlock(user)}>
             {
-              (user.isBlocked) ? "Activar usuario" : "Suspender usuario"
+              "Activar usuario"
             }
-          </Button>
+          </Button >):(
+             <Button endIcon={<BlockIcon/>} onClick={() => handleBlock(user)}>
+             {
+               "Suspender usuario"
+             }
+           </Button>
+          )}
         </div>
     );
   }
@@ -243,7 +253,7 @@ export default function UserReportsTableView(props) {
           <Box style={{
             width: 800,
             position: 'absolute',
-            right: 850
+            right: 790
           }}>
            <Typography variant="h4">Usuarios por denuncias
            </Typography>
@@ -288,15 +298,15 @@ export default function UserReportsTableView(props) {
                       }}>
                         <Box flex={8}>
                         </Box>
-                          <Box flex={1}>
+                          <Box flex={2}>
                             <Box onClick={handleUseFilter}>
-                              <Button>Filtrar por fecha</Button>
+                              <Button endIcon={<FilterAltIcon/>}>Filtrar por fecha</Button>
                             </Box>
                           </Box>
 
                           <Box flex={1}>
-                            <Box onClick={handleDisableFilter}>
-                              <Button>Quitar filtro</Button>
+                            <Box  onClick={handleDisableFilter}>
+                              <Button endIcon={<FilterAltOffIcon/>}>Quitar filtro</Button>
                             </Box>
                           </Box>
                       </Box>
@@ -307,7 +317,7 @@ export default function UserReportsTableView(props) {
             </TableBody>
           </Table>
         </div>
-        }
+        
 
         <BlankLine number={2}/>
 
