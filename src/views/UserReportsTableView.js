@@ -129,7 +129,7 @@ export default function UserReportsTableView(props) {
         if (response.error
             .toLowerCase()
             .includes("token")) {
-          logOut().then(navigate("/"));
+          //logOut().then(navigate("/"));
         }
       });
     } else {
@@ -191,9 +191,7 @@ export default function UserReportsTableView(props) {
         if (response.error
             .toLowerCase()
             .includes("token")) {
-          navigate("/");
-
-          logOut();
+         // logOut().then(navigate("/"));
         }
       });
     }

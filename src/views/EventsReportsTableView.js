@@ -38,6 +38,7 @@ import { DataGrid } from '@mui/x-data-grid';
 import Typography from "@mui/material/Typography";
 import BasicDatePicker from "../components/BasicDatePicker";
 import {confirm_suspension_constants} from "../constants/UserConstants";
+import ChangeCircleIcon from "@mui/icons-material/ChangeCircle";
 
 export default function EventsReportsTableView(props) {
   const navigate = useNavigate();
@@ -113,7 +114,7 @@ export default function EventsReportsTableView(props) {
 
     const action = (event.isBlocked)
         ? "activar el evento"
-        : "suspender el usuario";
+        : "suspender el evento";
 
     const confirmation = await SweetAlert2.fire({
       icon: "warning",
@@ -138,7 +139,7 @@ export default function EventsReportsTableView(props) {
         if (response.error
             .toLowerCase()
             .includes("token")) {
-          logOut().then(navigate("/"));
+         // logOut().then(navigate("/"));
         }
       });
     } else {
@@ -167,13 +168,22 @@ export default function EventsReportsTableView(props) {
                   }}> Ver denuncias
           </Button>
 
-          <Button onClick={async () => {
-                    await handleSuspend(e)
-                  }}>
-            {
-              (e.isBlocked) ? "Activar evento" : "Suspender evento"
-            }
-          </Button>
+          {(e.isBlocked) ?(
+              <Button endIcon={<ChangeCircleIcon/>} onClick={async () => {
+                await handleSuspend(e)
+              }}>
+                {
+                  "Activar evento"
+                }
+              </Button >):(
+              <Button endIcon={<BlockIcon/>} onClick={async () => {
+                await handleSuspend(e)
+              }}>
+                {
+                  "Suspender evento"
+                }
+              </Button>
+          )}
         </div>
     );
   }
@@ -214,7 +224,7 @@ export default function EventsReportsTableView(props) {
         if (response.error
             .toLowerCase()
             .includes("token")) {
-          logOut().then(navigate("/"));
+          //logOut().then(navigate("/"));
         }
       });
     }

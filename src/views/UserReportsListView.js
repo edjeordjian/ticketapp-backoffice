@@ -93,7 +93,7 @@ export default function UserReportsListView() {
                 if (response.error
                     .toLowerCase()
                     .includes("token")) {
-                    logOut().then(navigate("/"));
+                    //logOut().then(navigate("/"));
                 }
             });
         } else {
