@@ -1,8 +1,9 @@
 const getHeader = (token) => {
-  return{
+  return {
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': '*',
-    'Authorization': `Bearer ${token}`
+    'Authorization': `Bearer ${token}`,
+    'isAdministrator': true
   }
 }
 
@@ -11,6 +12,23 @@ const REQUEST_ERR_LBL = "No pudo realizarse la acción solicitada";
 const postTo = (url, body, token = "") => {
     return fetch(url, {
             method: "POST",
+            headers: getHeader(token),
+            body: JSON.stringify(body)
+        }
+    ).then(response =>
+        response.json()
+    ).catch(error => {
+        console.log(error);
+
+        return {
+            error: REQUEST_ERR_LBL
+        };
+    } );
+};
+
+const patchTo = (url, body, token = "") => {
+    return fetch(url, {
+            method: "PATCH",
             headers: getHeader(token),
             body: JSON.stringify(body)
         }
@@ -42,5 +60,5 @@ const getTo = (url, token) => {
 };
 
 export {
-    postTo, getTo
+    postTo, getTo, patchTo
 };

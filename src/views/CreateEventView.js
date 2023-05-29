@@ -7,7 +7,7 @@ import BasicDatePicker from "../components/BasicDatePicker";
 import InputTags from "../components/TagField";
 
 import { getTo, postTo } from "../services/helpers/RequestHelper";
-import { EVENT_TYPES_URL, EVENT_URL, EVENTS_PATH } from "../constants/URLs";
+import {BACKEND_HOST, EVENT_TYPES_URL, EVENT_URL, EVENTS_PATH} from "../constants/URLs";
 import { FormGroup, IconButton } from "@mui/material";
 import ClearIcon from "@mui/icons-material/Clear";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
@@ -375,7 +375,7 @@ export default function CreateEventView() {
     };
 
     postTo(
-      `${process.env.REACT_APP_BACKEND_HOST}${EVENT_URL}`,
+      `${BACKEND_HOST}${EVENT_URL}`,
       eventPayload,
       userToken
     ).then((res) => {
@@ -399,7 +399,7 @@ export default function CreateEventView() {
 
   React.useEffect(() => {
     getTo(
-      `${process.env.REACT_APP_BACKEND_HOST}${EVENT_TYPES_URL}`,
+      `${BACKEND_HOST}${EVENT_TYPES_URL}`,
       userToken
     ).then((res) => {
       if (res.error !== undefined) {

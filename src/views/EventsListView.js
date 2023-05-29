@@ -4,7 +4,7 @@ import { Box } from "@mui/system";
 import * as React from "react";
 import BasicBtn from "../components/BasicBtn";
 import DashboardDrawer from "../components/DashboardDrawer";
-import { useNavigate } from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import {
   ADD_TO_GROUP_PATH,
   EVENT_CREATE_PATH,
@@ -36,7 +36,7 @@ const styles = {
   },
 };
 
-export default function EventsListView(props) {
+export default function EventsListView() {
   const navigate = useNavigate();
 
   const [loading, setLoading] = React.useState(true);
@@ -46,21 +46,20 @@ export default function EventsListView(props) {
 
   const [userToken, setUserToken] = React.useState(getUserToken());
 
+  const {state} = useLocation();
+
+  let events;
+
+  if (state) {
+    events = state.events;
+  }
+
   React.useEffect(() => {
-    getTo(
-      `${process.env.REACT_APP_BACKEND_HOST}${EVENT_SEARCH_NAME_URL}?${OWNER_PARAM}=${userId}`,
-      userToken
-    ).then((res) => {
-      if (res.error !== undefined) {
-        SweetAlert2.fire({
-          title: res.error,
-          icon: "error",
-        }).then();
-      } else {
-        setSelectableEvents(res.events);
-      }
-      setLoading(false);
-    });
+    if (events) {
+      setSelectableEvents(events);
+    }
+
+    setLoading(false);
   }, []);
 
   const displayProject = (source) => {
@@ -80,7 +79,7 @@ export default function EventsListView(props) {
           width={"100%"}
           height={"400px"}
           style={{ borderRadius: 20, marginTop: "25px" }}
-          src={source.pictures ? source.pictures[0] : ""}
+          src={source.mainPicture ? source.mainPicture : ""}
         />
 
         <BlankLine />
@@ -99,15 +98,6 @@ export default function EventsListView(props) {
   return (
     <>
       <Box style={{ marginLeft: "250px", padding: "25px" }}>
-         <div style={{
-           display: "flex",
-           width: "100%",
-           alignItems: "center"
-         }}>
-        </div>
-
-        <BlankLine/>
-
         <BlankLine/>
 
         {loading ? (

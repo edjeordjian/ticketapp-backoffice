@@ -1,24 +1,27 @@
 import * as React from "react";
 
-import Box from "@mui/material/Box";
+import {Box, Button} from "@mui/material";
 import Typography from "@mui/material/Typography";
-import {getTo} from "../services/helpers/RequestHelper";
-import Grid from "@mui/material/Grid";
-import UploadAndDisplayImage from "../components/UploadAndDisplayImage";
-import BasicDatePicker from "../components/BasicDatePicker";
-import InputTags from "../components/TagField";
+import {getTo, patchTo} from "../services/helpers/RequestHelper";
 
-import {EVENT_ID_PARAM, EVENT_TYPES_URL, EVENT_URL, EVENT_VIEW_PATH, EVENTS_PATH} from "../constants/URLs";
+import {
+    BACKEND_HOST,
+    EVENT_ID_PARAM,
+    EVENT_SUSPEND_URL,
+    EVENT_TYPES_URL,
+    EVENT_URL,
+    EVENT_VIEW_PATH,
+    EVENTS_PATH,
+    GET_REPORTS_PARAM
+} from "../constants/URLs";
 
 import {BlankLine} from "../components/BlankLine";
-import 'react-quill/dist/quill.snow.css';
-
 import {createEventStyle as createEventStyles} from "../styles/events/CreateEventStyle";
 
 import SweetAlert2 from 'sweetalert2';
 
 import {CREATED_EVENT_LBL, GET_EVENT_ERROR, UPLOAD_IMAGE_ERR_LBL} from "../constants/EventConstants";
-import {useNavigate, useSearchParams} from "react-router-dom";
+import {useLocation, useNavigate, useSearchParams} from "react-router-dom";
 
 import FullCalendar from '@fullcalendar/react';
 import interactionPlugin from "@fullcalendar/interaction";
@@ -30,7 +33,10 @@ import ReactHtmlParser from "react-html-parser";
 import { useMainContext } from "../services/contexts/MainContext";
 import { GoogleMap, MarkerF, useJsApiLoader } from "@react-google-maps/api";
 
-const ViewEventView = () => {
+import { Scrollbars } from 'react-custom-scrollbars';
+import {confirm_suspension_constants} from "../constants/UserConstants";
+
+const EventView = () => {
     const [name, setName] = React.useState("");
 
     const [richDescription, setRichDescription] = React.useState("");
@@ -65,12 +71,24 @@ const ViewEventView = () => {
 
     const [questions, setQuestions] = React.useState([]);
 
+  const [reports, setReports] = React.useState([]);
+
+  const { state } = useLocation();
+
+    const [isBlocked, setIsBlocked] = React.useState(state ? state.event.isBlocked : false);
+
     const navigate = useNavigate();
+
+    let event;
+
+    if (state) {
+        event = state.event;
+    }
 
   const getEventData = async () => {
     const eventId = searchParams.get(EVENT_ID_PARAM);
 
-        getTo(`${process.env.REACT_APP_BACKEND_HOST}${EVENT_URL}?${EVENT_ID_PARAM}=${eventId}`,
+        getTo(`${BACKEND_HOST}${EVENT_URL}?${EVENT_ID_PARAM}=${eventId}&${GET_REPORTS_PARAM}=true`,
           userToken)
             .then(response => {
                 if (response.error) {
@@ -102,12 +120,14 @@ const ViewEventView = () => {
 
                 setQuestions(response.faq);
 
-                if (response.latitude && response.longitude) {
-                    setCenter({
-                        lat: Number(response.latitude),
-                        lng: Number(response.longitude)
-                    });
-                }
+      setReports(response.reports);
+
+      if (response.latitude && response.longitude) {
+        setCenter({
+          lat: Number(response.latitude),
+          lng: Number(response.longitude),
+        });
+      }
 
                 const mappedSpaces = response.agenda.map((space) => {
                     return {
@@ -147,8 +167,56 @@ const ViewEventView = () => {
             });
     }
 
+  async function handleSuspend() {
+        const url = `${BACKEND_HOST}${EVENT_SUSPEND_URL}`;
+
+        const requestBody = {
+            eventId: event.id,
+
+            suspend: ! isBlocked
+        }
+
+      const action = (isBlocked)
+          ? "activar el evento"
+          : "suspender el evento";
+
+      const confirmation = await SweetAlert2.fire({
+          icon: "warning",
+          title: confirm_suspension_constants(action),
+          confirmButtonText: "Sí",
+          cancelButtonText: 'No',
+          showCancelButton: true
+      });
+
+      if (! confirmation.isConfirmed) {
+          return;
+      }
+
+        const response = await patchTo(url, requestBody, userToken);
+
+        if (response.error) {
+            SweetAlert2.fire({
+                icon: "error",
+                title: response.error,
+                confirmButtonText: "Aceptar"
+            }).then(r => {
+                if (response.error
+                    .toLowerCase()
+                    .includes("token")) {
+                    //logOut().then(navigate("/"));
+                }
+            });
+        } else {
+            SweetAlert2.fire({
+                icon: "info",
+                title: response.message,
+                confirmButtonText: "Aceptar"
+            }).then(_ => setIsBlocked(! isBlocked));
+        }
+    }
+
     React.useEffect(() => {
-        getTo(`${process.env.REACT_APP_BACKEND_HOST}${EVENT_TYPES_URL}`,
+        getTo(`${BACKEND_HOST}${EVENT_TYPES_URL}`,
           userToken)
             .then(res => {
                 if (res.error !== undefined) {
@@ -163,10 +231,96 @@ const ViewEventView = () => {
             .then(getEventData);
     }, []);
 
+    if (loading) {
+        return <p></p>
+    }
+
     return (
         <main style={{backgroundColor: "#eeeeee", minHeight: "100vh"}}>
             <Box style={createEventStyles.formContainer}>
-                <Typography variant="h1">{name}
+                <Box style={{
+                    display: "flex"
+                }}>
+                    <Typography variant={"h2"}
+                                style={{
+                                    flex: "3"
+                                }}>{name}
+                    </Typography>
+
+                    <Button onClick={async () => {
+                        await handleSuspend()
+                    }}>
+                        {
+                            (isBlocked) ? "Activar evento" : "Suspender evento"
+                        }
+                    </Button>
+                </Box>
+
+                <BlankLine number={2}/>
+
+                <Typography variant="h3">
+                    <strong>Denuncias</strong>
+                </Typography>
+
+                <BlankLine/>
+
+                    <Scrollbars
+                        style={{
+                            width: 1400,
+                            height: 600,
+                        }}>
+                        {
+                            reports.map((report, idx) => {
+                                    return (
+                                        <Box key={idx}>
+                                            <Typography variant="h5"
+                                                        display="block">
+                                                Usuario: {report.reporter}
+                                            </Typography>
+
+                                            <BlankLine />
+
+                                            <Typography variant="h5"
+                                                        display="block">
+                                                Fecha: {report.date}
+                                            </Typography>
+
+                                            <BlankLine />
+
+                                            <Typography variant="h5"
+                                                        display="block">
+                                                <strong> Motivo: </strong>
+                                            </Typography>
+
+                                            <Typography variant="h5"
+                                                        display="block">
+                                                {report.reason}
+                                            </Typography>
+
+                                            <BlankLine />
+
+                                            <Typography variant="h5"
+                                                        display="block">
+                                                <strong> Texto de la denuncia: </strong>
+                                            </Typography>
+
+                                            <Typography variant="h5"
+                                                        display="block">
+                                                {report.text}
+                                            </Typography>
+
+                                            <BlankLine number={2} />
+                                        </Box>
+                                    )
+                                }
+                                )
+                        }
+                    </Scrollbars>
+
+                <BlankLine number={2}/>
+
+                <Typography variant="h3">
+                    <strong>Información del evento</strong>
                 </Typography>
 
                 <BlankLine/>
@@ -175,13 +329,11 @@ const ViewEventView = () => {
 
                 <BlankLine number={2}/>
 
-                {loading ? (
-                    <p></p>
-                ) : (
+                {(
                     types.map((type, idx) => (
-                        <b key={idx}
-                           style={tagStyle}>{type}
-                        </b>
+                    <b key={idx}
+                       style={tagStyle}>{type}
+                    </b>
                     ))
                 )}
 
@@ -278,5 +430,5 @@ const ViewEventView = () => {
 }
 
 export {
-    ViewEventView
+    EventView
 };

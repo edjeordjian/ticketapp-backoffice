@@ -11,7 +11,7 @@ import BasicBtn from "../components/BasicBtn";
 import { useMainContext } from "../services/contexts/MainContext";
 import { getTo, postTo } from "../services/helpers/RequestHelper";
 import { CREATED_EVENT_LBL, MEMBERS_ADDED_TO_GROUP_LBL } from "../constants/EventConstants";
-import { ADD_TO_GROUP_URL, EVENTS_PATH, GROUP_URL } from "../constants/URLs";
+import {ADD_TO_GROUP_URL, BACKEND_HOST, EVENTS_PATH, GROUP_URL} from "../constants/URLs";
 import { BlankLine } from "../components/BlankLine";
 
 const AddGroupMember = () => {
@@ -46,7 +46,7 @@ const AddGroupMember = () => {
   };
 
   const getExistingMembers = () => {
-    getTo(`${process.env.REACT_APP_BACKEND_HOST}${GROUP_URL}`,
+    getTo(`${BACKEND_HOST}${GROUP_URL}`,
       userToken).then(res => {
         if (res.error) {
           SweetAlert2.fire({
@@ -64,7 +64,7 @@ const AddGroupMember = () => {
       assistants: members
     }
 
-    postTo(`${process.env.REACT_APP_BACKEND_HOST}${ADD_TO_GROUP_URL}`,
+    postTo(`${BACKEND_HOST}${ADD_TO_GROUP_URL}`,
       body,
       userToken).then(res => {
       if (res.error) {
