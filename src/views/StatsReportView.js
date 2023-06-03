@@ -1,9 +1,6 @@
-import {
-  Button, CircularProgress, Table, TableBody, TableCell,
-  TableRow
-} from "@mui/material";
+import {CircularProgress} from "@mui/material";
 import {getTo} from "../services/helpers/RequestHelper";
-import { Box, height } from "@mui/system";
+import { Box } from "@mui/system";
 import * as React from "react";
 import {Link, useNavigate} from "react-router-dom";
 import * as SweetAlert2 from "sweetalert2";
@@ -18,9 +15,7 @@ import FlagCircleIcon from '@mui/icons-material/FlagCircle';
 import {
   START_DATE_PARAM,
   END_DATE_PARAM,
-  EVENT_SEARCH_NAME_URL,
-  ADMIN_PARAM,
-  GET_REPORTS_PARAM, BACKEND_HOST
+  EVENT_STATS_EVENTS_STATES, BACKEND_HOST
 } from "../constants/URLs";
 
 
@@ -33,45 +28,52 @@ import BarIngressGraphic from "./graphics/BarIngressGraphic";
 import TopReportsBarGraphic from "./graphics/TopReportsBarGraphic";
 
 export default function StatsReportView(props) {
-  const navigate = useNavigate();
 
   const [loading, setLoading] = React.useState(false);
 
   const {getUserId, getUserToken} = useMainContext();
   const [userToken, setUserToken] = React.useState(getUserToken());
 
+  // Fitros
   const [startDate, setStartDate] = React.useState("");
   const [endDate, setEndDate] = React.useState("");
 
-  const [updateTab, setUpdateTab] = React.useState(false);
+  // Stats
+  const [eventsStateData, setEventsStateData] =  React.useState({labels:[], data:[]});
 
   React.useEffect(() => {
     document.body.style.backgroundColor = '#f9f6f4';
+    getStats();
+  }, []);
 
-    getServicesWrapper(false).then(r => r);
-  }, [updateTab]);
-
-  const getServicesWrapper = async (useFilters) => {
-    //const events = await getEvents(useFilters);
-
-    //setEvents(events);
-
-   // setRows(events);
-
-    //setFilteredRows(events);
+  const getStats = async () => {
+    setLoading(true);
+    // obtener token
+    //const eventStatesData = await getEventStatesData();
+    setLoading(false);
   };
 
 
-  async function getEvents(useFilters) {
-    let url = `${BACKEND_HOST}${EVENT_SEARCH_NAME_URL}`;
+  async function getEventStatesData() {
+    let url = `${BACKEND_HOST}${EVENT_STATS_EVENTS_STATES}`;
+    url += `?${START_DATE_PARAM}=${startDate}&${END_DATE_PARAM}=${endDate}`;
+    let response = await getTo(url, userToken);
+    const stats = response.stats;
+    const labels = stats.map(e => {return e.status});
+    const data = stats.map(e => {return e.number});
+    setEventsStateData({labels, data});
+  }
 
-    url += `?${ADMIN_PARAM}=true&${GET_REPORTS_PARAM}=true`;
+  const updateFromDate = async (date) => {
+    console.log(date);
+    await setStartDate(date);
+    getStats();
+  }
 
-    if (useFilters) {
-      url += `&${START_DATE_PARAM}=${startDate}&${END_DATE_PARAM}=${endDate}`;
-    }
-    let response = a
-    return response.events;
+  const updateToDate = async (date) => {
+    console.log(date);
+    await setEndDate(date);
+    getStats();
   }
 
   const boxStat = (label, amount, iconName) => {
@@ -105,8 +107,8 @@ export default function StatsReportView(props) {
           Filtros por fecha
         </Typography>
         <Box sx={{display:'flex', justifyContent: 'flex-end', gap: '10px'}}>
-          <BasicDatePicker label="Fecha Desde" setSelectedDate={() => console.log('asdf')} />
-          <BasicDatePicker label="Fecha Hasta" setSelectedDate={() => console.log('asdf')} />
+          <BasicDatePicker label="Fecha Desde" setSelectedDate={updateFromDate} />
+          <BasicDatePicker label="Fecha Hasta" setSelectedDate={updateToDate} />
         </Box>
       </Box>
     )
@@ -117,6 +119,7 @@ export default function StatsReportView(props) {
       <Box style={{
         position: 'absolute',
         marginLeft: '280px',
+        backgroundColor: '#f9f6f4',
         width: '80%'
       }}>
        <Box sx={styles().boxStatsContainer}>
@@ -129,7 +132,7 @@ export default function StatsReportView(props) {
        </Box>
        <Box sx={styles().row}>
         <BarIngressGraphic/>
-        <EventStatesGraphic/>
+        <EventStatesGraphic data={eventsStateData.data} labels={eventsStateData.labels}/>
        </Box>
        <Box sx={styles().row}>
         <CreationDateEventsGraphic/>

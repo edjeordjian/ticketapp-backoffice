@@ -23,21 +23,22 @@ ChartJS.register(
   Legend
 );
 
-const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
-
-const data = {
-  labels,
-  datasets: [
-    {
-      label: 'Creación de eventos a lo largo del tiempo',
-      data: [1,2,4,5,7,8,9],
-      borderColor: 'rgb(255, 99, 132)',
-      backgroundColor: 'rgba(58, 87, 232)',
-    },
-  ],
-};
 
 export default function CreationDateEventsGraphic(props) {
+  const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
+
+  const data = {
+      labels,
+      datasets: [
+        {
+          label: 'Creación de eventos a lo largo del tiempo',
+          data: [1,2,4,5,7,8,9],
+          borderColor: 'rgb(255, 99, 132)',
+          backgroundColor: 'rgba(58, 87, 232)',
+        },
+      ],
+    };
+    
     return (
         <Box style={styles().container}>
             <Box style={{height: '300px', width:'70%'}}>

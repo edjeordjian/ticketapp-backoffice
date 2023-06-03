@@ -22,21 +22,21 @@ ChartJS.register(
   Legend
 );
 
-const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
-
-
-export const data = {
-  labels,
-  datasets: [
-    {
-      label: 'Ingresos a los largo del tiempo',
-      data: [1,2,4,5,7,8,9],
-      backgroundColor: 'rgba(58, 87, 232)',
-    },
-  ],
-};
 
 export default function BarIngressGraphic(props) {
+    const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
+
+    const data = {
+      labels,
+      datasets: [
+        {
+          label: 'Ingresos a los largo del tiempo',
+          data: [1,2,4,5,7,8,9],
+          backgroundColor: 'rgba(58, 87, 232)',
+        },
+      ],
+    };
+    
     return (
         <Box style={styles().container}>
             <Box style={{height: '400px', width:'800px'}}>
