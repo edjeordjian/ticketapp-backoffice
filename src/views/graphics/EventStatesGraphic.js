@@ -27,7 +27,9 @@ export default function EventStatesGraphic(props) {
     return (
         <Box style={styles().container}>
             <Box style={{height: '400px', width:'400px'}}>
-                <Typography>Estado de eventos</Typography>
+                <Typography component="h2" color="#111827" style={styles().title}>
+                    Estado de eventos
+                </Typography>
                 <Doughnut 
                     options={{ maintainAspectRatio: false }}
                     data={data}
@@ -47,6 +49,11 @@ const styles = () => {
             borderRadius: '15px',
             display: 'flex',
             justifyContent: 'center'
-        }
+        },
+        title: {
+            marginTop: '25px',
+            marginBottom: '25px',
+            fontWeight: '900'
+          }
     }
 }

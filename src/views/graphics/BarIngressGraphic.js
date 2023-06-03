@@ -40,8 +40,8 @@ export default function BarIngressGraphic(props) {
     return (
         <Box style={styles().container}>
             <Box style={{height: '400px', width:'800px'}}>
-                <Typography>
-                  Estado de eventos
+                <Typography component="h2" color="#111827" style={styles().title}>
+                  Ingresos a eventos
                 </Typography>
                 <Bar data={data}/>
             </Box>
@@ -59,6 +59,11 @@ const styles = () => {
             borderRadius: '15px',
             display: 'flex',
             justifyContent: 'center'
+        },
+        title: {
+          marginTop: '25px',
+          marginBottom: '25px',
+          fontWeight: '900'
         }
     }
 }

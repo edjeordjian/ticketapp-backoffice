@@ -41,8 +41,8 @@ export default function CreationDateEventsGraphic(props) {
     return (
         <Box style={styles().container}>
             <Box style={{height: '300px', width:'70%'}}>
-                <Typography>
-                  Creación de eventos
+                <Typography component="h2" color="#111827" style={styles().title}>
+                Creación de eventos
                 </Typography>
                 <Line data={data}/>
             </Box>
@@ -61,6 +61,11 @@ const styles = () => {
             display: 'flex',
             justifyContent: 'center',
             alignContent: 'center'
+        },
+        title: {
+          marginTop: '25px',
+          marginBottom: '25px',
+          fontWeight: '900'
         }
     }
 }

@@ -101,7 +101,7 @@ export default function StatsReportView(props) {
   const filterBox = () => {
     return (
       <Box sx={{display:'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%'}}>
-        <Typography component="h1" fontWeight="700">
+        <Typography component="h1" fontWeight="700" fontSize="26px">
           Filtros por fecha
         </Typography>
         <Box sx={{display:'flex', justifyContent: 'flex-end', gap: '10px'}}>
@@ -168,9 +168,9 @@ const styles = () => {
     boxStatsContainer: {
       width: '100%',
       display: 'flex',
-      justifyContent: 'space-around',
-      marginTop: '25px',
-      padding: '25px'
+      justifyContent: 'space-between',
+      marginTop: '35px',
+      marginBotton: '35px'
     },
     boxStatContainer: {
       backgroundColor: 'white',

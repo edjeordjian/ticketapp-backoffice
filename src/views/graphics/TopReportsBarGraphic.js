@@ -39,8 +39,8 @@ export const data = {
 export default function TopReportsBarGraphic(props) {
     return (
         <Box style={styles().container}>
-            <Box style={{height: '400px', width:'800px'}}>
-                <Typography>
+            <Box style={{height: '300px', width:'600px'}}>
+                <Typography component="h2" color="#111827" style={styles().title}>
                   Top 5 denuncias
                 </Typography>
                 <Bar data={data}/>
@@ -52,13 +52,19 @@ export default function TopReportsBarGraphic(props) {
 const styles = () => {
     return {
         container: {
-            height: '500px', 
-            width:'1000px', 
+            height: '400px', 
+            width:'800px', 
             backgroundColor: 'white', 
             padding: '15px', 
             borderRadius: '15px',
             display: 'flex',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            marginBottom: '45px'
+        },
+        title: {
+          marginTop: '25px',
+          marginBottom: '25px',
+          fontWeight: '900'
         }
     }
 }
