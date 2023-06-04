@@ -2,7 +2,8 @@ import {Route, Routes} from "react-router-dom";
 import {
     ADD_TO_GROUP_PATH, EVENT_CREATE_PATH, EVENT_REPORTS_LIST_PATH, EVENT_REPORTS_PATH,
     EVENT_VIEW_PATH, EVENTS_PATH, LOG_IN_PATH, USER_REPORTS_LIST_PATH,
-    USER_REPORTS_PATH
+    USER_REPORTS_PATH,
+    STATS_PATH
 } from "../../constants/URLs";
 import CreateEventView from "../../views/CreateEventView";
 import UserReportsTableView from "../../views/UserReportsTableView";
@@ -12,6 +13,7 @@ import { AddGroupMember } from "../../views/AddGroupMember";
 import EventsListView from "../../views/EventsListView";
 import UserReportsListView from "../../views/UserReportsListView";
 import EventsReportsTableView from "../../views/EventsReportsTableView";
+import StatsReportView from "../../views/StatsReportView";
 
 const LoggedRouter = () => {
     /* Remember to add "exact" to allow users to type the endpoint directly. */
@@ -25,6 +27,8 @@ const LoggedRouter = () => {
                 <Route exact path={USER_REPORTS_PATH} element={<UserReportsTableView/>}/>
 
                 <Route exact path={EVENT_REPORTS_PATH} element={<EventsReportsTableView/>}/>
+
+                <Route exact path={STATS_PATH} element={<StatsReportView/>}/>
 
                 <Route exact path={EVENTS_PATH} element={<EventsListView/>}/>
 

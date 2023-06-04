@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import {Divider, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Toolbar} from "@mui/material";
 import {useNavigate} from "react-router-dom";
-import {EVENT_REPORTS_PATH, EVENTS_PATH, USER_REPORTS_PATH} from "../constants/URLs";
+import {EVENT_REPORTS_PATH, STATS_PATH, USER_REPORTS_PATH} from "../constants/URLs";
 import {useMainContext} from "../services/contexts/MainContext";
 import EventIcon from '@mui/icons-material/Event';
 import LogoutIcon from '@mui/icons-material/Logout';
+import GroupIcon from '@mui/icons-material/Group';
+import PollIcon from '@mui/icons-material/Poll';
 
 
 
@@ -30,10 +32,12 @@ export default function DashboardDrawer() {
     return (
         <Drawer
             sx={{
-                width: 240,
+                width: '20%',
+                maxWidth: 240,
                 flexShrink: 0,
                 '& .MuiDrawer-paper': {
-                    width: 240,
+                    width: '20%',
+                    maxWidth: 240,
                     boxSizing: 'border-box',
                     zIndex: 1
                 },
@@ -58,7 +62,7 @@ export default function DashboardDrawer() {
                           className="dashboard-item">
                     <ListItemButton>
                           <ListItemIcon>
-                            <EventIcon/>
+                            <GroupIcon/>
                           </ListItemIcon>
                         <ListItemText primary={"Usuarios"} onClick={() => navigate(USER_REPORTS_PATH)}/>
                     </ListItemButton>
@@ -72,6 +76,17 @@ export default function DashboardDrawer() {
                             <EventIcon/>
                         </ListItemIcon>
                         <ListItemText primary={"Eventos"} onClick={() => navigate(EVENT_REPORTS_PATH)}/>
+                    </ListItemButton>
+                </ListItem>
+
+                <ListItem button key={"Estadísticas"}
+                          style={{color: optionSelected ? "#6B7DE5" : "#252733"}}
+                          className="dashboard-item">
+                    <ListItemButton>
+                        <ListItemIcon>
+                            <PollIcon/>
+                        </ListItemIcon>
+                        <ListItemText primary={"Estadísticas"} onClick={() => navigate(STATS_PATH)}/>
                     </ListItemButton>
                 </ListItem>
             </List>
