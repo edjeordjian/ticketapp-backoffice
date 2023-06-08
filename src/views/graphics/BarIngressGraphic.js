@@ -24,14 +24,14 @@ ChartJS.register(
 
 
 export default function BarIngressGraphic(props) {
-    const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
+    const labels = props.labels;
 
     const data = {
       labels,
       datasets: [
         {
           label: 'Ingresos a los largo del tiempo',
-          data: [1,2,4,5,7,8,9],
+          data: props.data,
           backgroundColor: 'rgba(58, 87, 232)',
         },
       ],

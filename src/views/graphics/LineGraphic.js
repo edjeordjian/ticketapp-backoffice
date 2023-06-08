@@ -24,15 +24,14 @@ ChartJS.register(
 );
 
 
-export default function CreationDateEventsGraphic(props) {
-  const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
-
+export default function LineGraphic(props) {
+  const labels = props.labels;
   const data = {
       labels,
       datasets: [
         {
-          label: 'Creación de eventos a lo largo del tiempo',
-          data: [1,2,4,5,7,8,9],
+          label: props.subtitle,
+          data: props.data,
           borderColor: 'rgb(255, 99, 132)',
           backgroundColor: 'rgba(58, 87, 232)',
         },
@@ -43,7 +42,7 @@ export default function CreationDateEventsGraphic(props) {
         <Box style={styles().container}>
             <Box style={{height: '300px', width:'70%'}}>
                 <Typography component="h2" color="#111827" style={styles().title}>
-                Creación de eventos
+                  {props.title}
                 </Typography>
                 <Line data={data}/>
             </Box>

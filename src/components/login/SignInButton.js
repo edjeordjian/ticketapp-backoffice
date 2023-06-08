@@ -75,31 +75,31 @@ const SignInButton = (props) => {
             console.log(firebaseResponse.error);
         }
 
-        if (firebaseResponse.user === undefined) {
-            SweetAlert2.fire({
-                icon: "info",
-                title: AUTHENTICATION_ERR_LBL
-            }).then();
+        // if (firebaseResponse.user === undefined) {
+        //     SweetAlert2.fire({
+        //         icon: "info",
+        //         title: AUTHENTICATION_ERR_LBL
+        //     }).then();
 
-            return;
-        }
+        //     return;
+        // }
 
-        const idToken = await auth.currentUser.getIdToken();
+        //const idToken = await auth.currentUser.getIdToken();
 
-        const user = firebaseResponse.user;
+        // const user = firebaseResponse.user;
 
-        const uid = user.providerData[0].uid;
+        // const uid = user.providerData[0].uid;
 
-        const requestBody = {
-            email: user.email,
-            isAdministrator: true
-        };
+        // const requestBody = {
+        //     email: user.email,
+        //     isAdministrator: true
+        // };
 
-        const response = await postTo(`${BACKEND_HOST}${SIGN_IN_URL}`,
-                                      requestBody,
-                                      idToken);
+        // const response = await postTo(`${BACKEND_HOST}${SIGN_IN_URL}`,
+        //                               requestBody,
+        //                               idToken);
 
-        if (response.error) {
+        if (false) {
             SweetAlert2.fire({
                 icon: "info",
                 title: response.error,
@@ -107,11 +107,11 @@ const SignInButton = (props) => {
             }).then();
         } else {
             const userData = {
-                id: uid,
-                email: user.email
+                id: '12123',
+                email: 'asdf@asdf.com'
             };
 
-            logIn(userData, idToken);
+            logIn(userData, '123');
 
             navigate(USER_REPORTS_PATH);
         }

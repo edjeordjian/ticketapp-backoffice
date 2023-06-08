@@ -23,9 +23,10 @@ import { ThemeProvider } from '@mui/material/styles';
 import Typography from "@mui/material/Typography";
 import BasicDatePicker from "../components/BasicDatePicker";
 import EventStatesGraphic from "./graphics/EventStatesGraphic";
-import CreationDateEventsGraphic from "./graphics/CreationDateEventsGraphic";
+import LineGraphic from "./graphics/LineGraphic";
 import BarIngressGraphic from "./graphics/BarIngressGraphic";
 import TopReportsBarGraphic from "./graphics/TopReportsBarGraphic";
+import TopUsers from "./graphics/TopUsers";
 
 export default function StatsReportView(props) {
 
@@ -40,6 +41,7 @@ export default function StatsReportView(props) {
 
   // Stats
   const [eventsStateData, setEventsStateData] =  React.useState({labels:[], data:[]});
+  const [historicData, setHistoricData] =  React.useState({users:0, events:0, reports:0});
 
   React.useEffect(() => {
     document.body.style.backgroundColor = '#f9f6f4';
@@ -50,6 +52,7 @@ export default function StatsReportView(props) {
     setLoading(true);
     // obtener token
     //const eventStatesData = await getEventStatesData();
+    //const getHistoricData = await getEventStatesData();
     setLoading(false);
   };
 
@@ -62,6 +65,13 @@ export default function StatsReportView(props) {
     const labels = stats.map(e => {return e.status});
     const data = stats.map(e => {return e.number});
     setEventsStateData({labels, data});
+  }
+
+  async function getHistoricData() {
+    let url = `${BACKEND_HOST}${EVENT_STATS_EVENTS_STATES}`;
+    let response = await getTo(url, userToken);
+    const stats = response.stats;
+    setHistoricData({users:stats.users, events:stats.events, reports:stats.reports})
   }
 
   const updateFromDate = async (date) => {
@@ -123,22 +133,39 @@ export default function StatsReportView(props) {
         width: '80%'
       }}>
        <Box sx={styles().boxStatsContainer}>
-          {boxStat('Eventos creados', 30000, 'event')}
-          {boxStat('Usuarios activos', 200, 'user')}
-          {boxStat('Denuncias', 3400, 'report')}
+          {boxStat('Eventos creados', historicData.events, 'event')}
+          {boxStat('Usuarios activos', historicData.users, 'user')}
+          {boxStat('Denuncias', historicData.reports, 'report')}
        </Box>
        <Box sx={styles().row}>
          {filterBox()}
        </Box>
        <Box sx={styles().row}>
-        <BarIngressGraphic/>
+        <BarIngressGraphic 
+          data={[1,2,4,5,7,8,9]}
+          labels={['January', 'February', 'March', 'April', 'May', 'June', 'July']}
+        />
         <EventStatesGraphic data={eventsStateData.data} labels={eventsStateData.labels}/>
        </Box>
        <Box sx={styles().row}>
-        <CreationDateEventsGraphic/>
+        <LineGraphic 
+          title={"Creación de eventos"} 
+          subtitle={"Creación de eventos a lo largo del tiempo"}
+          labels={['January', 'February', 'March', 'April', 'May', 'June', 'July']}
+          data={[1,2,4,5,7,8,9]}
+          />
+       </Box>
+       <Box sx={styles().row}>
+        <LineGraphic 
+          title={"Denuncias realizadas"}
+          subtitle={"Denuncia de eventos a lo largo del tiempo"}
+          labels={['January', 'February', 'March', 'April', 'May', 'June', 'July']}
+          data={[1,2,4,5,7,8,9]}
+          />
        </Box>
        <Box sx={styles().row}>
         <TopReportsBarGraphic/>
+        <TopUsers/>
        </Box>
       </Box>
     )
