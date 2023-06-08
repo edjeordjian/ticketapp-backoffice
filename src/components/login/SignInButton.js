@@ -74,32 +74,22 @@ const SignInButton = (props) => {
         if (firebaseResponse && firebaseResponse.error) {
             console.log(firebaseResponse.error);
         }
+        const idToken = await auth.currentUser.getIdToken();
 
-        // if (firebaseResponse.user === undefined) {
-        //     SweetAlert2.fire({
-        //         icon: "info",
-        //         title: AUTHENTICATION_ERR_LBL
-        //     }).then();
+        const user = firebaseResponse.user;
 
-        //     return;
-        // }
+        const uid = user.providerData[0].uid;
 
-        //const idToken = await auth.currentUser.getIdToken();
+        const requestBody = {
+            email: user.email,
+            isAdministrator: true
+        };
 
-        // const user = firebaseResponse.user;
+        const response = await postTo(`${BACKEND_HOST}${SIGN_IN_URL}`,
+            requestBody,
+            idToken);
 
-        // const uid = user.providerData[0].uid;
-
-        // const requestBody = {
-        //     email: user.email,
-        //     isAdministrator: true
-        // };
-
-        // const response = await postTo(`${BACKEND_HOST}${SIGN_IN_URL}`,
-        //                               requestBody,
-        //                               idToken);
-
-        if (false) {
+        if (response.error) {
             SweetAlert2.fire({
                 icon: "info",
                 title: response.error,
@@ -107,11 +97,11 @@ const SignInButton = (props) => {
             }).then();
         } else {
             const userData = {
-                id: '12123',
-                email: 'asdf@asdf.com'
+                id: uid,
+                email: user.email
             };
 
-            logIn(userData, '123');
+            logIn(userData, idToken);
 
             navigate(USER_REPORTS_PATH);
         }

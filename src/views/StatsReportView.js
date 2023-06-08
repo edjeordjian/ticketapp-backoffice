@@ -13,9 +13,9 @@ import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber';
 import FlagCircleIcon from '@mui/icons-material/FlagCircle';
 
 import {
-  START_DATE_PARAM,
-  END_DATE_PARAM,
-  EVENT_STATS_EVENTS_STATES, BACKEND_HOST
+    START_DATE_PARAM,
+    END_DATE_PARAM,
+    EVENT_STATS_EVENTS_STATES, BACKEND_HOST, EVENT_URL, EVENT_ID_PARAM, GET_REPORTS_PARAM, TOP_ORGANIZERS_URL
 } from "../constants/URLs";
 
 
@@ -27,6 +27,7 @@ import LineGraphic from "./graphics/LineGraphic";
 import BarIngressGraphic from "./graphics/BarIngressGraphic";
 import TopReportsBarGraphic from "./graphics/TopReportsBarGraphic";
 import TopUsers from "./graphics/TopUsers";
+import {GET_EVENT_ERROR} from "../constants/EventConstants";
 
 export default function StatsReportView(props) {
 
@@ -43,9 +44,12 @@ export default function StatsReportView(props) {
   const [eventsStateData, setEventsStateData] =  React.useState({labels:[], data:[]});
   const [historicData, setHistoricData] =  React.useState({users:0, events:0, reports:0});
 
+  const [topOrganizers, setTopOrganizers] = React.useState([]);
+
   React.useEffect(() => {
     document.body.style.backgroundColor = '#f9f6f4';
-    getStats();
+
+    getStats().then();
   }, []);
 
   const getStats = async () => {
@@ -53,9 +57,11 @@ export default function StatsReportView(props) {
     // obtener token
     //const eventStatesData = await getEventStatesData();
     //const getHistoricData = await getEventStatesData();
+
+    await getTopOrganizers();
+
     setLoading(false);
   };
-
 
   async function getEventStatesData() {
     let url = `${BACKEND_HOST}${EVENT_STATS_EVENTS_STATES}`;
@@ -72,6 +78,23 @@ export default function StatsReportView(props) {
     let response = await getTo(url, userToken);
     const stats = response.stats;
     setHistoricData({users:stats.users, events:stats.events, reports:stats.reports})
+  }
+
+  const getTopOrganizers = async  () => {
+      await getTo(`${BACKEND_HOST}${TOP_ORGANIZERS_URL}`,
+          userToken)
+          .then(response => {
+              if (response.error) {
+                  SweetAlert2.fire({
+                      title: response.error,
+                      icon: "error"
+                  }).then();
+
+                  return;
+              }
+
+              setTopOrganizers(response.organizers);
+          });
   }
 
   const updateFromDate = async (date) => {
@@ -165,7 +188,7 @@ export default function StatsReportView(props) {
        </Box>
        <Box sx={styles().row}>
         <TopReportsBarGraphic/>
-        <TopUsers/>
+        <TopUsers organizers={topOrganizers}/>
        </Box>
       </Box>
     )
@@ -181,7 +204,6 @@ export default function StatsReportView(props) {
       </Box>
     )
   }
-
 
   return (
       <div>

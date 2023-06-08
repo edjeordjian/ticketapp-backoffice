@@ -2,35 +2,35 @@ import { Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import * as React from "react";
 
-export default function TopUsers(props){
-
+export default function TopUsers(props) {
     const _renderOrganizerTitle = (o) => {
         return(
             <Box sx={styles().personContainer}>
-                <Typography component="h5" color="#111827">
-                    Mail
+                <Typography component="h5" color="#111827">Nombre
                 </Typography>
-                <Typography component="h5" color="#111827">
-                    Entradas
+
+                <Typography component="h5" color="#111827">Entradas
                 </Typography>
-                <Typography component="h5" color="#111827">
-                    % ingresos
+
+                <Typography component="h5" color="#111827">% ingresos
                 </Typography>
             </Box>
         )
     }
 
-    const _renderOrganizer = (o) => {
+    const _renderOrganizer = (organizer) => {
         return(
             <Box sx={styles().personContainer}>
-                <Typography component="h5" color="#111827">
-                    asdf@asdf.com
+                <Typography component="h5"
+                            color="#111827">{organizer.organizer}
                 </Typography>
-                <Typography component="h5" color="#111827">
-                    3000
+
+                <Typography component="h5"
+                            color="#111827">{organizer.tickets}
                 </Typography>
-                <Typography component="h5" color="#111827">
-                    90%
+
+                <Typography component="h5"
+                            color="#111827">{organizer.percentage}
                 </Typography>
             </Box>
         )
@@ -43,11 +43,12 @@ export default function TopUsers(props){
             </Typography>
             <Box sx={styles().containerOrg}>
                 {_renderOrganizerTitle()}
-                {_renderOrganizer()}
-                {_renderOrganizer()}
-                {_renderOrganizer()}
-                {_renderOrganizer()}
-                {_renderOrganizer()}
+
+                {
+                    (props.organizers) && (
+                        props.organizers.map(organizer => _renderOrganizer(organizer))
+                    )
+                }
             </Box>
         </Box>
     )
