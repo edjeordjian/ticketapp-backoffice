@@ -1,21 +1,34 @@
-import {CircularProgress} from "@mui/material";
-import {getTo} from "../services/helpers/RequestHelper";
-import { Box } from "@mui/system";
-import * as React from "react";
-import {Link, useNavigate} from "react-router-dom";
-import * as SweetAlert2 from "sweetalert2";
-import { useMainContext } from "../services/contexts/MainContext";
-import {dataGridTheme, textTheme} from "../styles/events/ReportsListStyle";
+import {
+    Button,
+    CircularProgress,
+    Select
+} from "@mui/material";
 
-// Icons
+import {getTo} from "../services/helpers/RequestHelper";
+
+import { Box } from "@mui/system";
+
+import * as React from "react";
+
+import * as SweetAlert2 from "sweetalert2";
+
+import { useMainContext } from "../services/contexts/MainContext";
+
+import {textTheme} from "../styles/events/ReportsListStyle";
+
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+
 import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber';
+
 import FlagCircleIcon from '@mui/icons-material/FlagCircle';
 
 import {
     START_DATE_PARAM,
     END_DATE_PARAM,
-    EVENT_STATS_EVENTS_STATES, BACKEND_HOST, EVENT_URL, EVENT_ID_PARAM, GET_REPORTS_PARAM, TOP_ORGANIZERS_URL
+    EVENT_STATS_EVENTS_STATES,
+    BACKEND_HOST,
+    TOP_ORGANIZERS_URL,
+    REPORTS_STATS_URL, FILTER_PARAM
 } from "../constants/URLs";
 
 
@@ -28,6 +41,9 @@ import BarIngressGraphic from "./graphics/BarIngressGraphic";
 import TopReportsBarGraphic from "./graphics/TopReportsBarGraphic";
 import TopUsers from "./graphics/TopUsers";
 import {GET_EVENT_ERROR} from "../constants/EventConstants";
+import FilterAltIcon from "@mui/icons-material/FilterAlt";
+import FilterAltOffIcon from "@mui/icons-material/FilterAltOff";
+import MenuItem from "@mui/material/MenuItem";
 
 export default function StatsReportView(props) {
 
@@ -36,15 +52,25 @@ export default function StatsReportView(props) {
   const {getUserId, getUserToken} = useMainContext();
   const [userToken, setUserToken] = React.useState(getUserToken());
 
+  const DEFAULT_START_DATE = 'Thu May 25 2023 01:19:31 GMT-0300 (Argentina Standard Time)';
+
+  const DEFAULT_END_DATE = 'Thu Jun 09 2023 01:19:31 GMT-0300 (Argentina Standard Time)';
+
+  const DEFAULT_FILTER = "day";
+
   // Fitros
-  const [startDate, setStartDate] = React.useState("");
-  const [endDate, setEndDate] = React.useState("");
+  const [startDate, setStartDate] = React.useState(new Date(DEFAULT_START_DATE));
+  const [endDate, setEndDate] = React.useState(new Date(DEFAULT_END_DATE));
 
   // Stats
   const [eventsStateData, setEventsStateData] =  React.useState({labels:[], data:[]});
   const [historicData, setHistoricData] =  React.useState({users:0, events:0, reports:0});
 
   const [topOrganizers, setTopOrganizers] = React.useState([]);
+
+  const [reportsStats, setReportsStats] = React.useState([]);
+
+  const [filterKind, setFilterKind] = React.useState([]);
 
   React.useEffect(() => {
     document.body.style.backgroundColor = '#f9f6f4';
@@ -57,6 +83,8 @@ export default function StatsReportView(props) {
     // obtener token
     //const eventStatesData = await getEventStatesData();
     //const getHistoricData = await getEventStatesData();
+
+    await getReportsStats(startDate, endDate);
 
     await getTopOrganizers();
 
@@ -80,7 +108,25 @@ export default function StatsReportView(props) {
     setHistoricData({users:stats.users, events:stats.events, reports:stats.reports})
   }
 
-  const getTopOrganizers = async  () => {
+    const getReportsStats = async  (startDate, endDate) => {
+        await getTo(`${BACKEND_HOST}${REPORTS_STATS_URL}` +
+            `?${START_DATE_PARAM}=${startDate}&${END_DATE_PARAM}=${endDate}&${FILTER_PARAM}=${filterKind}`,
+            userToken)
+            .then(response => {
+                if (response.error) {
+                    SweetAlert2.fire({
+                        title: response.error,
+                        icon: "error"
+                    }).then();
+
+                    return;
+                }
+
+                setReportsStats(response);
+            });
+    }
+
+    const getTopOrganizers = async  () => {
       await getTo(`${BACKEND_HOST}${TOP_ORGANIZERS_URL}`,
           userToken)
           .then(response => {
@@ -99,14 +145,26 @@ export default function StatsReportView(props) {
 
   const updateFromDate = async (date) => {
     console.log(date);
-    await setStartDate(date);
-    getStats();
+    
+    setStartDate(date);
   }
 
   const updateToDate = async (date) => {
     console.log(date);
+
     await setEndDate(date);
-    getStats();
+  }
+
+  const handleChangeFilterKind = (event) => {
+      setFilterKind(event.target.value);
+  }
+
+  const handleUseFilters = () => {
+      getStats().then();
+  }
+
+  const handleDisableFilters = () => {
+
   }
 
   const boxStat = (label, amount, iconName) => {
@@ -139,10 +197,16 @@ export default function StatsReportView(props) {
         <Typography component="h1" fontWeight="700" fontSize="26px">
           Filtros por fecha
         </Typography>
-        <Box sx={{display:'flex', justifyContent: 'flex-end', gap: '10px'}}>
           <BasicDatePicker label="Fecha Desde" setSelectedDate={updateFromDate} />
+
           <BasicDatePicker label="Fecha Hasta" setSelectedDate={updateToDate} />
-        </Box>
+
+          <Select onChange={handleChangeFilterKind}
+                  value={DEFAULT_FILTER}>
+              <MenuItem value={"day"}>Día</MenuItem>
+              <MenuItem value={"month"}>Mes</MenuItem>
+              <MenuItem value={"year"}>Año</MenuItem>
+          </Select>
       </Box>
     )
   }
@@ -160,9 +224,30 @@ export default function StatsReportView(props) {
           {boxStat('Usuarios activos', historicData.users, 'user')}
           {boxStat('Denuncias', historicData.reports, 'report')}
        </Box>
-       <Box sx={styles().row}>
-         {filterBox()}
-       </Box>
+
+          <Box sx={styles().row}>
+              {filterBox()}
+
+              <Box style={{
+                  display: "flex",
+                  flexDirection: "row"
+              }}>
+                  <Box flex={8}>
+                  </Box>
+                  <Box flex={2}>
+                      <Box onClick={() => handleUseFilters()}>
+                          <Button endIcon={<FilterAltIcon/>}>Filtrar</Button>
+                      </Box>
+                  </Box>
+
+                  <Box flex={1}>
+                      <Box  onClick={() => handleDisableFilters()}>
+                          <Button endIcon={<FilterAltOffIcon/>}>Quitar filtro</Button>
+                      </Box>
+                  </Box>
+              </Box>
+          </Box>
+
        <Box sx={styles().row}>
         <BarIngressGraphic 
           data={[1,2,4,5,7,8,9]}
@@ -170,6 +255,7 @@ export default function StatsReportView(props) {
         />
         <EventStatesGraphic data={eventsStateData.data} labels={eventsStateData.labels}/>
        </Box>
+
        <Box sx={styles().row}>
         <LineGraphic 
           title={"Creación de eventos"} 
@@ -178,12 +264,13 @@ export default function StatsReportView(props) {
           data={[1,2,4,5,7,8,9]}
           />
        </Box>
+
        <Box sx={styles().row}>
         <LineGraphic 
           title={"Denuncias realizadas"}
           subtitle={"Denuncia de eventos a lo largo del tiempo"}
-          labels={['January', 'February', 'March', 'April', 'May', 'June', 'July']}
-          data={[1,2,4,5,7,8,9]}
+          labels={reportsStats.labels}
+          data={reportsStats.data}
           />
        </Box>
        <Box sx={styles().row}>
