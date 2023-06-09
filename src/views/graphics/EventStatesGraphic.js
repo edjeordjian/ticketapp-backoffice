@@ -8,11 +8,11 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 
 export default function EventStatesGraphic(props) {
     const data = {
-        labels: ['Borrador', 'Publicado', 'Cancelado', 'Suspendido','Finalizado'], //props.labels
+        labels: props.labels,
         datasets: [
           {
             label: '# of Votes',
-            data: [12, 19, 3, 5, 1], //props.data
+            data: props.data,
             backgroundColor: [
               'rgba(58, 87, 232)',
               'rgba(133, 244, 250)',

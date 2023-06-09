@@ -35,6 +35,7 @@ const END_DATE_PARAM = "endDate";
 const FILTER_PARAM = "filter";
 
 
+
 /* Paths */
 const EVENT_CREATE_PATH =  "/events/create";
 
@@ -66,6 +67,11 @@ const TOP_ORGANIZERS_URL = "/organizer/top";
 
 const REPORTS_STATS_URL = `${EVENT_URL}/report/stats`;
 
+const EVENTS_DATES_STATS_URL = `${EVENT_URL}/date/stats`;
+
+const EVENT_STATUS_STATS_URL = `${EVENT_URL}/status/stats`;
+
+
 
 /* Hosts */
 const BACKEND_HOST = process.env.REACT_APP_BACKEND_HOST;
@@ -79,5 +85,5 @@ export {
     EVENT_REPORTS_LIST_PATH, EVENT_REPORTS_PATH, USER_REPORTS_LIST_PATH,
     EVENT_CANCEL_URL, EVENT_SUSPEND_URL, BACKEND_HOST, STATS_PATH,
     EVENT_STATS_EVENTS_STATES, TOP_ORGANIZERS_URL, REPORTS_STATS_URL,
-    FILTER_PARAM
+    FILTER_PARAM, EVENTS_DATES_STATS_URL, EVENT_STATUS_STATS_URL
 };

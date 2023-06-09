@@ -28,7 +28,10 @@ import {
     EVENT_STATS_EVENTS_STATES,
     BACKEND_HOST,
     TOP_ORGANIZERS_URL,
-    REPORTS_STATS_URL, FILTER_PARAM
+    REPORTS_STATS_URL,
+    FILTER_PARAM,
+    EVENTS_DATES_STATS_URL,
+    EVENT_STATUS_STATS_URL
 } from "../constants/URLs";
 
 
@@ -64,12 +67,15 @@ export default function StatsReportView(props) {
   const [endDate, setEndDate] = React.useState(new Date(DEFAULT_END_DATE));
 
   // Stats
-  const [eventsStateData, setEventsStateData] =  React.useState({labels:[], data:[]});
-  const [historicData, setHistoricData] =  React.useState({users:0, events:0, reports:0});
+  const [eventsStateData, setEventsStateData] = React.useState({labels:[], data:[]});
+
+  const [eventDatesStats, setEventDateStats] = React.useState({labels:[], data:[]});
+
+  const [historicData, setHistoricData] = React.useState({users:0, events:0, reports:0});
 
   const [topOrganizers, setTopOrganizers] = React.useState([]);
 
-  const [reportsStats, setReportsStats] = React.useState([]);
+  const [reportsStats, setReportsStats] = React.useState({labels:[], data:[]});
 
   const [filterKind, setFilterKind] = React.useState(DEFAULT_FILTER);
 
@@ -81,26 +87,18 @@ export default function StatsReportView(props) {
 
   const getStats = async () => {
     setLoading(true);
-    // obtener token
-    //const eventStatesData = await getEventStatesData();
     //const getHistoricData = await getEventStatesData();
 
     await getReportsStats(startDate, endDate);
 
     await getTopOrganizers();
 
+    await getEventDatesStats();
+
+    await getEventStatusDateStats();
+
     setLoading(false);
   };
-
-  async function getEventStatesData() {
-    let url = `${BACKEND_HOST}${EVENT_STATS_EVENTS_STATES}`;
-    url += `?${START_DATE_PARAM}=${startDate}&${END_DATE_PARAM}=${endDate}`;
-    let response = await getTo(url, userToken);
-    const stats = response.stats;
-    const labels = stats.map(e => {return e.status});
-    const data = stats.map(e => {return e.number});
-    setEventsStateData({labels, data});
-  }
 
   async function getHistoricData() {
     let url = `${BACKEND_HOST}${EVENT_STATS_EVENTS_STATES}`;
@@ -109,7 +107,54 @@ export default function StatsReportView(props) {
     setHistoricData({users:stats.users, events:stats.events, reports:stats.reports})
   }
 
-    const getReportsStats = async  (startDate, endDate) => {
+  const getEventStatusDateStats = async () => {
+      const formattedStartDate = startDate !== null ? moment(startDate).format("YYYY-MM-DD") : "";
+
+      const formattedEndDate = endDate !== null ? moment(endDate).format("YYYY-MM-DD") : "";
+
+      await getTo(`${BACKEND_HOST}${EVENT_STATUS_STATS_URL}`
+          + `?${START_DATE_PARAM}=${formattedStartDate}`
+          + `&${END_DATE_PARAM}=${formattedEndDate}`,
+          userToken)
+          .then(response => {
+              if (response.error) {
+                  SweetAlert2.fire({
+                      title: response.error,
+                      icon: "error"
+                  }).then();
+
+                  return;
+              }
+
+              setEventsStateData(response);
+          });
+  }
+
+  const getEventDatesStats = async () => {
+      const formattedStartDate = startDate !== null ? moment(startDate).format("YYYY-MM-DD") : "";
+
+      const formattedEndDate = endDate !== null ? moment(endDate).format("YYYY-MM-DD") : "";
+
+      await getTo(`${BACKEND_HOST}${EVENTS_DATES_STATS_URL}`
+          + `?${START_DATE_PARAM}=${formattedStartDate}`
+          + `&${END_DATE_PARAM}=${formattedEndDate}`
+          + `&${FILTER_PARAM}=${filterKind}`,
+          userToken)
+          .then(response => {
+              if (response.error) {
+                  SweetAlert2.fire({
+                      title: response.error,
+                      icon: "error"
+                  }).then();
+
+                  return;
+              }
+
+              setEventDateStats(response);
+          });
+  }
+
+  const getReportsStats = async  (startDate, endDate) => {
       const formattedStartDate = startDate !== null ? moment(startDate).format("YYYY-MM-DD") : "";
 
       const formattedEndDate = endDate !== null ? moment(endDate).format("YYYY-MM-DD") : "";
@@ -133,7 +178,7 @@ export default function StatsReportView(props) {
             });
     }
 
-    const getTopOrganizers = async  () => {
+  const getTopOrganizers = async  () => {
       await getTo(`${BACKEND_HOST}${TOP_ORGANIZERS_URL}`,
           userToken)
           .then(response => {
@@ -271,8 +316,8 @@ export default function StatsReportView(props) {
         <LineGraphic 
           title={"Creación de eventos"} 
           subtitle={"Creación de eventos a lo largo del tiempo"}
-          labels={['January', 'February', 'March', 'April', 'May', 'June', 'July']}
-          data={[1,2,4,5,7,8,9]}
+          labels={eventDatesStats.labels}
+          data={eventDatesStats.data}
           />
        </Box>
 
