@@ -40,10 +40,11 @@ import LineGraphic from "./graphics/LineGraphic";
 import BarIngressGraphic from "./graphics/BarIngressGraphic";
 import TopReportsBarGraphic from "./graphics/TopReportsBarGraphic";
 import TopUsers from "./graphics/TopUsers";
-import {GET_EVENT_ERROR} from "../constants/EventConstants";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import FilterAltOffIcon from "@mui/icons-material/FilterAltOff";
 import MenuItem from "@mui/material/MenuItem";
+
+import moment from "moment";
 
 export default function StatsReportView(props) {
 
@@ -70,7 +71,7 @@ export default function StatsReportView(props) {
 
   const [reportsStats, setReportsStats] = React.useState([]);
 
-  const [filterKind, setFilterKind] = React.useState([]);
+  const [filterKind, setFilterKind] = React.useState(DEFAULT_FILTER);
 
   React.useEffect(() => {
     document.body.style.backgroundColor = '#f9f6f4';
@@ -109,8 +110,14 @@ export default function StatsReportView(props) {
   }
 
     const getReportsStats = async  (startDate, endDate) => {
-        await getTo(`${BACKEND_HOST}${REPORTS_STATS_URL}` +
-            `?${START_DATE_PARAM}=${startDate}&${END_DATE_PARAM}=${endDate}&${FILTER_PARAM}=${filterKind}`,
+      const formattedStartDate = startDate !== null ? moment(startDate).format("YYYY-MM-DD") : "";
+
+      const formattedEndDate = endDate !== null ? moment(endDate).format("YYYY-MM-DD") : "";
+
+        await getTo(`${BACKEND_HOST}${REPORTS_STATS_URL}`
+            + `?${START_DATE_PARAM}=${formattedStartDate}`
+            + `&${END_DATE_PARAM}=${formattedEndDate}`
+            + `&${FILTER_PARAM}=${filterKind}`,
             userToken)
             .then(response => {
                 if (response.error) {
@@ -197,12 +204,16 @@ export default function StatsReportView(props) {
         <Typography component="h1" fontWeight="700" fontSize="26px">
           Filtros por fecha
         </Typography>
-          <BasicDatePicker label="Fecha Desde" setSelectedDate={updateFromDate} />
+          <BasicDatePicker label="Fecha Desde"
+                           setSelectedDate={updateFromDate}
+                           oldDate={startDate}/>
 
-          <BasicDatePicker label="Fecha Hasta" setSelectedDate={updateToDate} />
+          <BasicDatePicker label="Fecha Hasta"
+                           setSelectedDate={updateToDate}
+                           oldDate={endDate}/>
 
-          <Select onChange={handleChangeFilterKind}
-                  value={DEFAULT_FILTER}>
+          <Select value={filterKind}
+              onChange={handleChangeFilterKind}>
               <MenuItem value={"day"}>Día</MenuItem>
               <MenuItem value={"month"}>Mes</MenuItem>
               <MenuItem value={"year"}>Año</MenuItem>

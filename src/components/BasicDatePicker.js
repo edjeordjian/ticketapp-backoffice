@@ -7,15 +7,26 @@ import "moment/locale/es";
 export default function BasicDatePicker(props) {
   moment.locale("es");
 
+  let oldDateFormated;
+
   const handleDateChange = (givenDate) => {
     props.setSelectedDate(givenDate);
   };
 
+  if (props.oldDate) {
+    oldDateFormated = moment(props.oldDate);
+  } else {
+    return (
+        <p>Cargando</p>
+    );
+  }
+
   return (
-    <LocalizationProvider dateAdapter={AdapterMoment}
-                          locale={moment.locale()}>
-      <DatePicker label={props.label ? props.label : "Elija una fecha"}
-                  onChange={handleDateChange} />
-    </LocalizationProvider>
+      <LocalizationProvider dateAdapter={AdapterMoment}
+                            locale={moment.locale()}>
+        <DatePicker label={props.label}
+                    onChange={handleDateChange}
+                    value={oldDateFormated}/>
+      </LocalizationProvider>
   );
 }
