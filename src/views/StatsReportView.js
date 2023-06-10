@@ -25,13 +25,14 @@ import FlagCircleIcon from '@mui/icons-material/FlagCircle';
 import {
     START_DATE_PARAM,
     END_DATE_PARAM,
-    EVENT_STATS_EVENTS_STATES,
+    HISTORIC_STATS_URL,
     BACKEND_HOST,
     TOP_ORGANIZERS_URL,
     REPORTS_STATS_URL,
     FILTER_PARAM,
     EVENTS_DATES_STATS_URL,
-    EVENT_STATUS_STATS_URL
+    EVENT_STATUS_STATS_URL,
+    ATTENDANCES_TOTAL_STATS_URL
 } from "../constants/URLs";
 
 
@@ -54,17 +55,18 @@ export default function StatsReportView(props) {
   const [loading, setLoading] = React.useState(false);
 
   const {getUserId, getUserToken} = useMainContext();
+
   const [userToken, setUserToken] = React.useState(getUserToken());
 
-  const DEFAULT_START_DATE = 'Thu May 25 2023 01:19:31 GMT-0300 (Argentina Standard Time)';
-
-  const DEFAULT_END_DATE = 'Thu Jun 09 2023 01:19:31 GMT-0300 (Argentina Standard Time)';
+  const DEFAULT_START_DATE = 'Thu Jun 01 2023 01:19:31 GMT-0300 (Argentina Standard Time)';
 
   const DEFAULT_FILTER = "day";
 
   // Fitros
   const [startDate, setStartDate] = React.useState(new Date(DEFAULT_START_DATE));
-  const [endDate, setEndDate] = React.useState(new Date(DEFAULT_END_DATE));
+
+  const [endDate, setEndDate] = React.useState(new Date());
+
   const [filterKind, setFilterKind] = React.useState(DEFAULT_FILTER);
 
   // Stats
@@ -78,6 +80,8 @@ export default function StatsReportView(props) {
 
   const [reportsStats, setReportsStats] = React.useState({labels:[], data:[]});
 
+  const [attendancesData, setAttendancesData] = React.useState([]);
+
   React.useEffect(() => {
     document.body.style.backgroundColor = '#f9f6f4';
 
@@ -86,7 +90,8 @@ export default function StatsReportView(props) {
 
   const getStats = async () => {
     setLoading(true);
-    //const getHistoricData = await getEventStatesData();
+
+    await getHistoricData();
 
     await getReportsStats(startDate, endDate);
 
@@ -96,20 +101,78 @@ export default function StatsReportView(props) {
 
     await getEventStatusDateStats();
 
+    await getAttendancesData();
+
     setLoading(false);
   };
 
-  async function getHistoricData() {
-    let url = `${BACKEND_HOST}${EVENT_STATS_EVENTS_STATES}`;
-    let response = await getTo(url, userToken);
-    const stats = response.stats;
-    setHistoricData({users:stats.users, events:stats.events, reports:stats.reports})
+  const getAttendancesData = async () => {
+      const formattedStartDate = startDate !== null
+          ? moment(startDate).format("YYYY-MM-DD")
+          : "";
+
+      const formattedEndDate = endDate !== null
+          ? moment(endDate).format("YYYY-MM-DD")
+          : "";
+
+      await getTo(`${BACKEND_HOST}${ATTENDANCES_TOTAL_STATS_URL}`
+          + `?${START_DATE_PARAM}=${formattedStartDate}`
+          + `&${END_DATE_PARAM}=${formattedEndDate}`
+          + `&${FILTER_PARAM}=${filterKind}`,
+          userToken)
+          .then(response => {
+              if (response.error) {
+                  SweetAlert2.fire({
+                      title: response.error,
+                      icon: "error"
+                  }).then();
+
+                  return;
+              }
+
+              setAttendancesData(response);
+          });
+  }
+
+  const getHistoricData = async function getHistoricData() {
+      const formattedStartDate = startDate !== null
+          ? moment(startDate).format("YYYY-MM-DD")
+          : "";
+
+      const formattedEndDate = endDate !== null
+          ? moment(endDate).format("YYYY-MM-DD")
+          : "";
+
+      await getTo(`${BACKEND_HOST}${HISTORIC_STATS_URL}`
+          + `?${START_DATE_PARAM}=${formattedStartDate}`
+          + `&${END_DATE_PARAM}=${formattedEndDate}`,
+          userToken)
+          .then(response => {
+              if (response.error) {
+                  SweetAlert2.fire({
+                      title: response.error,
+                      icon: "error"
+                  }).then();
+
+                  return;
+              }
+
+              setHistoricData( {
+                  users: response.userCount,
+                  events: response.eventCount,
+                  reports: response.reportCount
+              } );
+          });
   }
 
   const getEventStatusDateStats = async () => {
-      const formattedStartDate = startDate !== null ? moment(startDate).format("YYYY-MM-DD") : "";
+      const formattedStartDate = startDate !== null
+          ? moment(startDate).format("YYYY-MM-DD")
+          : "";
 
-      const formattedEndDate = endDate !== null ? moment(endDate).format("YYYY-MM-DD") : "";
+      const formattedEndDate = endDate !== null
+          ? moment(endDate).format("YYYY-MM-DD")
+          : "";
 
       await getTo(`${BACKEND_HOST}${EVENT_STATUS_STATS_URL}`
           + `?${START_DATE_PARAM}=${formattedStartDate}`
@@ -302,8 +365,8 @@ export default function StatsReportView(props) {
 
        <Box sx={styles().row}>
         <BarIngressGraphic 
-          data={[1,2,4,5,7,8,9]}
-          labels={['January', 'February', 'March', 'April', 'May', 'June', 'July']}
+          data={attendancesData.data}
+          labels={attendancesData.labels}
         />
         <EventStatesGraphic data={eventsStateData.data} labels={eventsStateData.labels}/>
        </Box>
