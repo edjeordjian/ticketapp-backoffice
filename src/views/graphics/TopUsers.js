@@ -63,7 +63,7 @@ const styles = () => {
             padding: '15px', 
             borderRadius: '15px',
             display: 'flex',
-            justifyContent: 'center',
+            justifyContent: 'flex-start',
             alignContent: 'center',
             flexDirection: 'column'
         },

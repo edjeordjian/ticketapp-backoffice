@@ -65,6 +65,7 @@ export default function StatsReportView(props) {
   // Fitros
   const [startDate, setStartDate] = React.useState(new Date(DEFAULT_START_DATE));
   const [endDate, setEndDate] = React.useState(new Date(DEFAULT_END_DATE));
+  const [filterKind, setFilterKind] = React.useState(DEFAULT_FILTER);
 
   // Stats
   const [eventsStateData, setEventsStateData] = React.useState({labels:[], data:[]});
@@ -76,8 +77,6 @@ export default function StatsReportView(props) {
   const [topOrganizers, setTopOrganizers] = React.useState([]);
 
   const [reportsStats, setReportsStats] = React.useState({labels:[], data:[]});
-
-  const [filterKind, setFilterKind] = React.useState(DEFAULT_FILTER);
 
   React.useEffect(() => {
     document.body.style.backgroundColor = '#f9f6f4';
@@ -245,24 +244,29 @@ export default function StatsReportView(props) {
 
   const filterBox = () => {
     return (
-      <Box sx={{display:'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%'}}>
+      <Box sx={{display:'flex', 
+                marginTop: '10px',
+                justifyContent: 'space-between', 
+                alignItems: 'center', width: '100%'}}>
         <Typography component="h1" fontWeight="700" fontSize="26px">
-          Filtros por fecha
+          Filtros
         </Typography>
-          <BasicDatePicker label="Fecha Desde"
-                           setSelectedDate={updateFromDate}
-                           oldDate={startDate}/>
+        <Box sx={{display:'flex', gap: '10px'}}>
+            <Select value={filterKind}
+                sx={{width: '150px'}}
+                onChange={handleChangeFilterKind}>
+                <MenuItem value={"day"}>Día</MenuItem>
+                <MenuItem value={"month"}>Mes</MenuItem>
+                <MenuItem value={"year"}>Año</MenuItem>
+            </Select>
+            <BasicDatePicker label="Fecha Desde"
+                            setSelectedDate={updateFromDate}
+                            oldDate={startDate}/>
 
-          <BasicDatePicker label="Fecha Hasta"
-                           setSelectedDate={updateToDate}
-                           oldDate={endDate}/>
-
-          <Select value={filterKind}
-              onChange={handleChangeFilterKind}>
-              <MenuItem value={"day"}>Día</MenuItem>
-              <MenuItem value={"month"}>Mes</MenuItem>
-              <MenuItem value={"year"}>Año</MenuItem>
-          </Select>
+            <BasicDatePicker label="Fecha Hasta"
+                            setSelectedDate={updateToDate}
+                            oldDate={endDate}/>
+        </Box>
       </Box>
     )
   }
@@ -281,28 +285,20 @@ export default function StatsReportView(props) {
           {boxStat('Denuncias', historicData.reports, 'report')}
        </Box>
 
-          <Box sx={styles().row}>
-              {filterBox()}
+        <Box sx={styles().row}>
+          {filterBox()}
+        </Box>
 
-              <Box style={{
-                  display: "flex",
-                  flexDirection: "row"
-              }}>
-                  <Box flex={8}>
-                  </Box>
-                  <Box flex={2}>
-                      <Box onClick={() => handleUseFilters()}>
-                          <Button endIcon={<FilterAltIcon/>}>Filtrar</Button>
-                      </Box>
-                  </Box>
-
-                  <Box flex={1}>
-                      <Box  onClick={() => handleDisableFilters()}>
-                          <Button endIcon={<FilterAltOffIcon/>}>Quitar filtro</Button>
-                      </Box>
-                  </Box>
+        <Box sx={styles().row}>
+          <Box sx={{display:'flex', gap: '10px', width:'100%', justifyContent:'flex-end'}}>
+              <Box onClick={() => handleUseFilters()}>
+                  <Button  variant="outlined" endIcon={<FilterAltIcon/>}>Filtrar</Button>
+              </Box>
+              <Box  onClick={() => handleDisableFilters()}>
+                  <Button variant="outlined" endIcon={<FilterAltOffIcon/>}>Quitar filtro</Button>
               </Box>
           </Box>
+       </Box>
 
        <Box sx={styles().row}>
         <BarIngressGraphic 
