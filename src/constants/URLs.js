@@ -5,7 +5,7 @@ const EVENT_URL = "/event";
 
 const EVENT_SEARCH_NAME_URL = "/event/all";
 
-const EVENT_STATS_EVENTS_STATES = "/event/all";
+const ATTENDANCES_TOTAL_STATS_URL = `${EVENT_URL}/attendances/total/stats`;
 
 const EVENT_TYPES_URL = EVENT_URL + "/types";
 
@@ -19,6 +19,23 @@ const USER_BLOCK_URL = `${USER_URL}/block`;
 
 const USER_ALL = `${USER_URL}/all`;
 
+const EVENT_CANCEL_URL = `${EVENT_URL}/cancel`;
+
+const EVENT_SUSPEND_URL = `${EVENT_URL}/suspend`;
+
+const TOP_ORGANIZERS_URL = "/organizer/top";
+
+const REPORTS_STATS_URL = `${EVENT_URL}/report/stats`;
+
+const EVENTS_DATES_STATS_URL = `${EVENT_URL}/date/stats`;
+
+const EVENT_STATUS_STATS_URL = `${EVENT_URL}/status/stats`;
+
+const HISTORIC_STATS_URL ='/stats/panel';
+
+const TOP_REPORTED_ORGANIZRS_URL = "/organizer/reported/top";
+
+
 
 /* Params */
 const EVENT_ID_PARAM = "eventId";
@@ -30,6 +47,9 @@ const ADMIN_PARAM = "admin";
 const START_DATE_PARAM = "startDate";
 
 const END_DATE_PARAM = "endDate";
+
+const FILTER_PARAM = "filter";
+
 
 
 /* Paths */
@@ -55,13 +75,11 @@ const EVENT_VIEW_PATH = "/event/view"
 
 const ADD_TO_GROUP_PATH = "/group";
 
-const EVENT_CANCEL_URL = `${EVENT_URL}/cancel`;
-
-const EVENT_SUSPEND_URL = `${EVENT_URL}/suspend`;
-
 
 /* Hosts */
 const BACKEND_HOST = process.env.REACT_APP_BACKEND_HOST;
+
+
 
 export {
     SIGN_IN_URL, EVENT_URL, EVENT_SEARCH_NAME_URL, EVENT_TYPES_URL,
@@ -70,5 +88,8 @@ export {
     GROUP_URL, USER_BLOCK_URL, USER_ALL, REPORTS_PATH,
     GET_REPORTS_PARAM, START_DATE_PARAM, END_DATE_PARAM, USER_REPORTS_PATH,
     EVENT_REPORTS_LIST_PATH, EVENT_REPORTS_PATH, USER_REPORTS_LIST_PATH,
-    EVENT_CANCEL_URL, EVENT_SUSPEND_URL, BACKEND_HOST, STATS_PATH, EVENT_STATS_EVENTS_STATES
+    EVENT_CANCEL_URL, EVENT_SUSPEND_URL, BACKEND_HOST, STATS_PATH,
+    TOP_ORGANIZERS_URL, REPORTS_STATS_URL, FILTER_PARAM, EVENTS_DATES_STATS_URL,
+    EVENT_STATUS_STATS_URL, HISTORIC_STATS_URL, ATTENDANCES_TOTAL_STATS_URL,
+    TOP_REPORTED_ORGANIZRS_URL
 };

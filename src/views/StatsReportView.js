@@ -1,21 +1,39 @@
-import {CircularProgress} from "@mui/material";
-import {getTo} from "../services/helpers/RequestHelper";
-import { Box } from "@mui/system";
-import * as React from "react";
-import {Link, useNavigate} from "react-router-dom";
-import * as SweetAlert2 from "sweetalert2";
-import { useMainContext } from "../services/contexts/MainContext";
-import {dataGridTheme, textTheme} from "../styles/events/ReportsListStyle";
+import {
+    Button,
+    CircularProgress,
+    Select
+} from "@mui/material";
 
-// Icons
+import {getTo} from "../services/helpers/RequestHelper";
+
+import { Box } from "@mui/system";
+
+import * as React from "react";
+
+import * as SweetAlert2 from "sweetalert2";
+
+import { useMainContext } from "../services/contexts/MainContext";
+
+import {textTheme} from "../styles/events/ReportsListStyle";
+
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+
 import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber';
+
 import FlagCircleIcon from '@mui/icons-material/FlagCircle';
 
 import {
-  START_DATE_PARAM,
-  END_DATE_PARAM,
-  EVENT_STATS_EVENTS_STATES, BACKEND_HOST
+    START_DATE_PARAM,
+    END_DATE_PARAM,
+    HISTORIC_STATS_URL,
+    BACKEND_HOST,
+    TOP_ORGANIZERS_URL,
+    REPORTS_STATS_URL,
+    FILTER_PARAM,
+    EVENTS_DATES_STATS_URL,
+    EVENT_STATUS_STATS_URL,
+    ATTENDANCES_TOTAL_STATS_URL,
+    TOP_REPORTED_ORGANIZRS_URL
 } from "../constants/URLs";
 
 
@@ -23,57 +41,275 @@ import { ThemeProvider } from '@mui/material/styles';
 import Typography from "@mui/material/Typography";
 import BasicDatePicker from "../components/BasicDatePicker";
 import EventStatesGraphic from "./graphics/EventStatesGraphic";
-import CreationDateEventsGraphic from "./graphics/CreationDateEventsGraphic";
+import LineGraphic from "./graphics/LineGraphic";
 import BarIngressGraphic from "./graphics/BarIngressGraphic";
 import TopReportsBarGraphic from "./graphics/TopReportsBarGraphic";
+import TopUsers from "./graphics/TopUsers";
+import FilterAltIcon from "@mui/icons-material/FilterAlt";
+import FilterAltOffIcon from "@mui/icons-material/FilterAltOff";
+import MenuItem from "@mui/material/MenuItem";
+
+import moment from "moment";
 
 export default function StatsReportView(props) {
 
   const [loading, setLoading] = React.useState(false);
 
   const {getUserId, getUserToken} = useMainContext();
+
   const [userToken, setUserToken] = React.useState(getUserToken());
 
+  const DEFAULT_START_DATE = 'Thu Jun 01 2023 01:19:31 GMT-0300 (Argentina Standard Time)';
+
+  const DEFAULT_FILTER = "day";
+
   // Fitros
-  const [startDate, setStartDate] = React.useState("");
-  const [endDate, setEndDate] = React.useState("");
+  const [startDate, setStartDate] = React.useState(new Date(DEFAULT_START_DATE));
+
+  const [endDate, setEndDate] = React.useState(new Date());
+
+  const [filterKind, setFilterKind] = React.useState(DEFAULT_FILTER);
 
   // Stats
-  const [eventsStateData, setEventsStateData] =  React.useState({labels:[], data:[]});
+  const [eventsStateData, setEventsStateData] = React.useState({labels:[], data:[]});
+
+  const [eventDatesStats, setEventDateStats] = React.useState({labels:[], data:[]});
+
+  const [historicData, setHistoricData] = React.useState({users:0, events:0, reports:0});
+
+  const [topOrganizers, setTopOrganizers] = React.useState([]);
+
+  const [topReportedOrganizers, setTopReportedOrganizers] = React.useState({labels:[], data:[]});
+
+  const [reportsStats, setReportsStats] = React.useState({labels:[], data:[]});
+
+  const [attendancesData, setAttendancesData] = React.useState([]);
 
   React.useEffect(() => {
     document.body.style.backgroundColor = '#f9f6f4';
-    getStats();
+
+    getStats().then();
   }, []);
 
   const getStats = async () => {
     setLoading(true);
-    // obtener token
-    //const eventStatesData = await getEventStatesData();
+
+    await getHistoricData();
+
+    await getReportsStats(startDate, endDate);
+
+    await getTopOrganizers();
+
+    await getEventDatesStats();
+
+    await getEventStatusDateStats();
+
+    await getAttendancesData();
+
+    await getTopReportedOrganizers();
+
     setLoading(false);
   };
 
-
-  async function getEventStatesData() {
-    let url = `${BACKEND_HOST}${EVENT_STATS_EVENTS_STATES}`;
-    url += `?${START_DATE_PARAM}=${startDate}&${END_DATE_PARAM}=${endDate}`;
-    let response = await getTo(url, userToken);
-    const stats = response.stats;
-    const labels = stats.map(e => {return e.status});
-    const data = stats.map(e => {return e.number});
-    setEventsStateData({labels, data});
+  const getFormattedDate = (dDate) => {
+      return dDate !== null
+          ? moment(dDate).format("YYYY-MM-DD") : "";
   }
+
+  const getAttendancesData = async () => {
+      const formattedStartDate = startDate !== null
+          ? moment(startDate).format("YYYY-MM-DD")
+          : "";
+
+      const formattedEndDate = endDate !== null
+          ? moment(endDate).format("YYYY-MM-DD")
+          : "";
+
+      await getTo(`${BACKEND_HOST}${ATTENDANCES_TOTAL_STATS_URL}`
+          + `?${START_DATE_PARAM}=${formattedStartDate}`
+          + `&${END_DATE_PARAM}=${formattedEndDate}`
+          + `&${FILTER_PARAM}=${filterKind}`,
+          userToken)
+          .then(response => {
+              if (response.error) {
+                  SweetAlert2.fire({
+                      title: response.error,
+                      icon: "error"
+                  }).then();
+
+                  return;
+              }
+
+              setAttendancesData(response);
+          });
+  }
+
+  const getHistoricData = async function getHistoricData() {
+      const formattedStartDate = startDate !== null
+          ? moment(startDate).format("YYYY-MM-DD")
+          : "";
+
+      const formattedEndDate = endDate !== null
+          ? moment(endDate).format("YYYY-MM-DD")
+          : "";
+
+      await getTo(`${BACKEND_HOST}${HISTORIC_STATS_URL}`
+          + `?${START_DATE_PARAM}=${formattedStartDate}`
+          + `&${END_DATE_PARAM}=${formattedEndDate}`,
+          userToken)
+          .then(response => {
+              if (response.error) {
+                  SweetAlert2.fire({
+                      title: response.error,
+                      icon: "error"
+                  }).then();
+
+                  return;
+              }
+
+              setHistoricData( {
+                  users: response.userCount,
+                  events: response.eventCount,
+                  reports: response.reportCount
+              } );
+          });
+  }
+
+  const getEventStatusDateStats = async () => {
+      const formattedStartDate = startDate !== null
+          ? moment(startDate).format("YYYY-MM-DD")
+          : "";
+
+      const formattedEndDate = endDate !== null
+          ? moment(endDate).format("YYYY-MM-DD")
+          : "";
+
+      await getTo(`${BACKEND_HOST}${EVENT_STATUS_STATS_URL}`
+          + `?${START_DATE_PARAM}=${formattedStartDate}`
+          + `&${END_DATE_PARAM}=${formattedEndDate}`,
+          userToken)
+          .then(response => {
+              if (response.error) {
+                  SweetAlert2.fire({
+                      title: response.error,
+                      icon: "error"
+                  }).then();
+
+                  return;
+              }
+
+              setEventsStateData(response);
+          });
+  }
+
+  const getEventDatesStats = async () => {
+      const formattedStartDate = startDate !== null ? moment(startDate).format("YYYY-MM-DD") : "";
+
+      const formattedEndDate = endDate !== null ? moment(endDate).format("YYYY-MM-DD") : "";
+
+      await getTo(`${BACKEND_HOST}${EVENTS_DATES_STATS_URL}`
+          + `?${START_DATE_PARAM}=${formattedStartDate}`
+          + `&${END_DATE_PARAM}=${formattedEndDate}`
+          + `&${FILTER_PARAM}=${filterKind}`,
+          userToken)
+          .then(response => {
+              if (response.error) {
+                  SweetAlert2.fire({
+                      title: response.error,
+                      icon: "error"
+                  }).then();
+
+                  return;
+              }
+
+              setEventDateStats(response);
+          });
+  }
+
+  const getReportsStats = async  (startDate, endDate) => {
+      const formattedStartDate = startDate !== null ? moment(startDate).format("YYYY-MM-DD") : "";
+
+      const formattedEndDate = endDate !== null ? moment(endDate).format("YYYY-MM-DD") : "";
+
+        await getTo(`${BACKEND_HOST}${REPORTS_STATS_URL}`
+            + `?${START_DATE_PARAM}=${formattedStartDate}`
+            + `&${END_DATE_PARAM}=${formattedEndDate}`
+            + `&${FILTER_PARAM}=${filterKind}`,
+            userToken)
+            .then(response => {
+                if (response.error) {
+                    SweetAlert2.fire({
+                        title: response.error,
+                        icon: "error"
+                    }).then();
+
+                    return;
+                }
+
+                setReportsStats(response);
+            });
+    }
+
+  const getTopOrganizers = async  () => {
+      await getTo(`${BACKEND_HOST}${TOP_ORGANIZERS_URL}`
+          + `?${START_DATE_PARAM}=${getFormattedDate(startDate)}`
+          + `&${END_DATE_PARAM}=${getFormattedDate(endDate)}`,
+          userToken)
+          .then(response => {
+              if (response.error) {
+                  SweetAlert2.fire({
+                      title: response.error,
+                      icon: "error"
+                  }).then();
+
+                  return;
+              }
+
+              setTopOrganizers(response.organizers);
+          });
+  }
+
+  const getTopReportedOrganizers = async  () => {
+      await getTo(`${BACKEND_HOST}${TOP_REPORTED_ORGANIZRS_URL}`
+          + `?${START_DATE_PARAM}=${getFormattedDate(startDate)}`
+          + `&${END_DATE_PARAM}=${getFormattedDate(endDate)}`,
+            userToken)
+            .then(response => {
+                if (response.error) {
+                    SweetAlert2.fire({
+                        title: response.error,
+                        icon: "error"
+                    }).then();
+
+                    return;
+                }
+
+                setTopReportedOrganizers(response);
+            });
+    }
 
   const updateFromDate = async (date) => {
     console.log(date);
-    await setStartDate(date);
-    getStats();
+    
+    setStartDate(date);
   }
 
   const updateToDate = async (date) => {
     console.log(date);
+
     await setEndDate(date);
-    getStats();
+  }
+
+  const handleChangeFilterKind = (event) => {
+      setFilterKind(event.target.value);
+  }
+
+  const handleUseFilters = () => {
+      getStats().then();
+  }
+
+  const handleDisableFilters = () => {
+
   }
 
   const boxStat = (label, amount, iconName) => {
@@ -102,13 +338,28 @@ export default function StatsReportView(props) {
 
   const filterBox = () => {
     return (
-      <Box sx={{display:'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%'}}>
+      <Box sx={{display:'flex', 
+                marginTop: '10px',
+                justifyContent: 'space-between', 
+                alignItems: 'center', width: '100%'}}>
         <Typography component="h1" fontWeight="700" fontSize="26px">
-          Filtros por fecha
+          Filtros
         </Typography>
-        <Box sx={{display:'flex', justifyContent: 'flex-end', gap: '10px'}}>
-          <BasicDatePicker label="Fecha Desde" setSelectedDate={updateFromDate} />
-          <BasicDatePicker label="Fecha Hasta" setSelectedDate={updateToDate} />
+        <Box sx={{display:'flex', gap: '10px'}}>
+            <Select value={filterKind}
+                sx={{width: '150px'}}
+                onChange={handleChangeFilterKind}>
+                <MenuItem value={"day"}>Día</MenuItem>
+                <MenuItem value={"month"}>Mes</MenuItem>
+                <MenuItem value={"year"}>Año</MenuItem>
+            </Select>
+            <BasicDatePicker label="Fecha Desde"
+                            setSelectedDate={updateFromDate}
+                            oldDate={startDate}/>
+
+            <BasicDatePicker label="Fecha Hasta"
+                            setSelectedDate={updateToDate}
+                            oldDate={endDate}/>
         </Box>
       </Box>
     )
@@ -123,22 +374,54 @@ export default function StatsReportView(props) {
         width: '80%'
       }}>
        <Box sx={styles().boxStatsContainer}>
-          {boxStat('Eventos creados', 30000, 'event')}
-          {boxStat('Usuarios activos', 200, 'user')}
-          {boxStat('Denuncias', 3400, 'report')}
+          {boxStat('Eventos creados', historicData.events, 'event')}
+          {boxStat('Usuarios activos', historicData.users, 'user')}
+          {boxStat('Denuncias', historicData.reports, 'report')}
        </Box>
-       <Box sx={styles().row}>
-         {filterBox()}
+
+        <Box sx={styles().row}>
+          {filterBox()}
+        </Box>
+
+        <Box sx={styles().row}>
+          <Box sx={{display:'flex', gap: '10px', width:'100%', justifyContent:'flex-end'}}>
+              <Box onClick={() => handleUseFilters()}>
+                  <Button  variant="outlined" endIcon={<FilterAltIcon/>}>Filtrar</Button>
+              </Box>
+              <Box  onClick={() => handleDisableFilters()}>
+                  <Button variant="outlined" endIcon={<FilterAltOffIcon/>}>Quitar filtro</Button>
+              </Box>
+          </Box>
        </Box>
+
        <Box sx={styles().row}>
-        <BarIngressGraphic/>
+        <BarIngressGraphic 
+          data={attendancesData.data}
+          labels={attendancesData.labels}
+        />
         <EventStatesGraphic data={eventsStateData.data} labels={eventsStateData.labels}/>
        </Box>
+
        <Box sx={styles().row}>
-        <CreationDateEventsGraphic/>
+        <LineGraphic 
+          title={"Creación de eventos"} 
+          subtitle={"Creación de eventos a lo largo del tiempo"}
+          labels={eventDatesStats.labels}
+          data={eventDatesStats.data}
+          />
+       </Box>
+
+       <Box sx={styles().row}>
+        <LineGraphic 
+          title={"Denuncias realizadas"}
+          subtitle={"Denuncia de eventos a lo largo del tiempo"}
+          labels={reportsStats.labels}
+          data={reportsStats.data}
+          />
        </Box>
        <Box sx={styles().row}>
-        <TopReportsBarGraphic/>
+        <TopReportsBarGraphic stats={topReportedOrganizers}/>
+        <TopUsers organizers={topOrganizers}/>
        </Box>
       </Box>
     )
@@ -154,7 +437,6 @@ export default function StatsReportView(props) {
       </Box>
     )
   }
-
 
   return (
       <div>
