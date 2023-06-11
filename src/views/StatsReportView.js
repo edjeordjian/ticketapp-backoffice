@@ -33,7 +33,8 @@ import {
     EVENTS_DATES_STATS_URL,
     EVENT_STATUS_STATS_URL,
     ATTENDANCES_TOTAL_STATS_URL,
-    TOP_REPORTED_ORGANIZRS_URL
+    TOP_REPORTED_ORGANIZRS_URL,
+    ALL_STATS_URL
 } from "../constants/URLs";
 
 
@@ -94,6 +95,7 @@ export default function StatsReportView(props) {
   const getStats = async () => {
     setLoading(true);
 
+    /*
     await getHistoricData();
 
     await getReportsStats(startDate, endDate);
@@ -106,7 +108,50 @@ export default function StatsReportView(props) {
 
     await getAttendancesData();
 
-    await getTopReportedOrganizers();
+    await getTopReportedOrganizers(); */
+
+      const formattedStartDate = startDate !== null
+          ? moment(startDate).format("YYYY-MM-DD")
+          : "";
+
+      const formattedEndDate = endDate !== null
+          ? moment(endDate).format("YYYY-MM-DD")
+          : "";
+
+      await getTo(`${BACKEND_HOST}${ALL_STATS_URL}`
+          + `?${START_DATE_PARAM}=${formattedStartDate}`
+          + `&${END_DATE_PARAM}=${formattedEndDate}`
+          + `&${FILTER_PARAM}=${filterKind}`,
+          userToken)
+          .then(response => {
+              if (response.error) {
+                  SweetAlert2.fire({
+                      title: response.error,
+                      icon: "error"
+                  }).then();
+
+                  return;
+              }
+
+              setAttendancesData(response.attendances);
+
+              setHistoricData( {
+                  users: response.historicStats.userCount,
+                  events: response.historicStats.eventCount,
+                  reports: response.historicStats.reportCount
+              } );
+
+              setEventsStateData(response.statusStats);
+
+              setEventDateStats(response.eventStats);
+
+              setReportsStats(response.reportStats);
+
+              setTopOrganizers(response.top5Organizers.organizers);
+
+              setTopReportedOrganizers(response.topOrganizers);
+          });
+
 
     setLoading(false);
   };
@@ -309,7 +354,13 @@ export default function StatsReportView(props) {
   }
 
   const handleDisableFilters = () => {
+      setStartDate(new Date(DEFAULT_START_DATE));
 
+      setEndDate(new Date());
+
+      setFilterKind(DEFAULT_FILTER);
+
+      getStats().then();
   }
 
   const boxStat = (label, amount, iconName) => {
@@ -374,7 +425,7 @@ export default function StatsReportView(props) {
         width: '80%'
       }}>
        <Box sx={styles().boxStatsContainer}>
-          {boxStat('Eventos activos', historicData.events, 'event')}
+          {boxStat('Eventos totales', historicData.events, 'event')}
           {boxStat('Usuarios activos', historicData.users, 'user')}
           {boxStat('Denuncias', historicData.reports, 'report')}
        </Box>
@@ -387,9 +438,6 @@ export default function StatsReportView(props) {
           <Box sx={{display:'flex', gap: '10px', width:'100%', justifyContent:'flex-end'}}>
               <Box onClick={() => handleUseFilters()}>
                   <Button  variant="outlined" endIcon={<FilterAltIcon/>}>Filtrar</Button>
-              </Box>
-              <Box  onClick={() => handleDisableFilters()}>
-                  <Button variant="outlined" endIcon={<FilterAltOffIcon/>}>Quitar filtro</Button>
               </Box>
           </Box>
        </Box>
