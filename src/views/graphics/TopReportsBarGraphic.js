@@ -22,26 +22,28 @@ ChartJS.register(
   Legend
 );
 
-const labels = ['A', 'B', 'C', 'D', 'E'];
-
-
-export const data = {
-  labels,
-  datasets: [
-    {
-      label: 'Organizadores con más denuncias',
-      data: [1,2,4,5,9],
-      backgroundColor: 'rgba(58, 87, 232)',
-    },
-  ],
-};
 
 export default function TopReportsBarGraphic(props) {
+    if (! props.stats) {
+        return <></>;
+    }
+
+    const data = {
+        labels: props.stats.labels,
+        datasets: [
+            {
+                label: 'Organizadores con más denuncias',
+                data: props.stats.data,
+                backgroundColor: 'rgba(58, 87, 232)',
+            },
+        ],
+    };
+
     return (
         <Box style={styles().container}>
             <Box style={{height: '300px', width:'600px'}}>
                 <Typography component="h2" color="#111827" style={styles().title}>
-                  Top 5 denuncias
+                  Organizadores con más denuncias
                 </Typography>
                 <Bar data={data}/>
             </Box>

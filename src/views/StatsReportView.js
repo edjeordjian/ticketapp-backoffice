@@ -32,7 +32,8 @@ import {
     FILTER_PARAM,
     EVENTS_DATES_STATS_URL,
     EVENT_STATUS_STATS_URL,
-    ATTENDANCES_TOTAL_STATS_URL
+    ATTENDANCES_TOTAL_STATS_URL,
+    TOP_REPORTED_ORGANIZRS_URL
 } from "../constants/URLs";
 
 
@@ -78,6 +79,8 @@ export default function StatsReportView(props) {
 
   const [topOrganizers, setTopOrganizers] = React.useState([]);
 
+  const [topReportedOrganizers, setTopReportedOrganizers] = React.useState({labels:[], data:[]});
+
   const [reportsStats, setReportsStats] = React.useState({labels:[], data:[]});
 
   const [attendancesData, setAttendancesData] = React.useState([]);
@@ -103,8 +106,15 @@ export default function StatsReportView(props) {
 
     await getAttendancesData();
 
+    await getTopReportedOrganizers();
+
     setLoading(false);
   };
+
+  const getFormattedDate = (dDate) => {
+      return dDate !== null
+          ? moment(dDate).format("YYYY-MM-DD") : "";
+  }
 
   const getAttendancesData = async () => {
       const formattedStartDate = startDate !== null
@@ -241,7 +251,9 @@ export default function StatsReportView(props) {
     }
 
   const getTopOrganizers = async  () => {
-      await getTo(`${BACKEND_HOST}${TOP_ORGANIZERS_URL}`,
+      await getTo(`${BACKEND_HOST}${TOP_ORGANIZERS_URL}`
+          + `?${START_DATE_PARAM}=${getFormattedDate(startDate)}`
+          + `&${END_DATE_PARAM}=${getFormattedDate(endDate)}`,
           userToken)
           .then(response => {
               if (response.error) {
@@ -256,6 +268,25 @@ export default function StatsReportView(props) {
               setTopOrganizers(response.organizers);
           });
   }
+
+  const getTopReportedOrganizers = async  () => {
+      await getTo(`${BACKEND_HOST}${TOP_REPORTED_ORGANIZRS_URL}`
+          + `?${START_DATE_PARAM}=${getFormattedDate(startDate)}`
+          + `&${END_DATE_PARAM}=${getFormattedDate(endDate)}`,
+            userToken)
+            .then(response => {
+                if (response.error) {
+                    SweetAlert2.fire({
+                        title: response.error,
+                        icon: "error"
+                    }).then();
+
+                    return;
+                }
+
+                setTopReportedOrganizers(response);
+            });
+    }
 
   const updateFromDate = async (date) => {
     console.log(date);
@@ -389,7 +420,7 @@ export default function StatsReportView(props) {
           />
        </Box>
        <Box sx={styles().row}>
-        <TopReportsBarGraphic/>
+        <TopReportsBarGraphic stats={topReportedOrganizers}/>
         <TopUsers organizers={topOrganizers}/>
        </Box>
       </Box>
