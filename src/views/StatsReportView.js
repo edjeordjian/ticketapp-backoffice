@@ -59,7 +59,7 @@ export default function StatsReportView(props) {
 
   const [userToken, setUserToken] = React.useState(getUserToken());
 
-  const DEFAULT_START_DATE = 'Thu Jun 01 2023 01:19:31 GMT-0300 (Argentina Standard Time)';
+  const DEFAULT_START_DATE = 'Thu Jun 07 2023 10:19:31 GMT-0300 (Argentina Standard Time)';
 
   const DEFAULT_FILTER = "day";
 
@@ -374,7 +374,7 @@ export default function StatsReportView(props) {
         width: '80%'
       }}>
        <Box sx={styles().boxStatsContainer}>
-          {boxStat('Eventos creados', historicData.events, 'event')}
+          {boxStat('Eventos activos', historicData.events, 'event')}
           {boxStat('Usuarios activos', historicData.users, 'user')}
           {boxStat('Denuncias', historicData.reports, 'report')}
        </Box>
