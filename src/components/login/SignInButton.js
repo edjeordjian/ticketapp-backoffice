@@ -74,16 +74,6 @@ const SignInButton = (props) => {
         if (firebaseResponse && firebaseResponse.error) {
             console.log(firebaseResponse.error);
         }
-
-        if (firebaseResponse.user === undefined) {
-            SweetAlert2.fire({
-                icon: "info",
-                title: AUTHENTICATION_ERR_LBL
-            }).then();
-
-            return;
-        }
-
         const idToken = await auth.currentUser.getIdToken();
 
         const user = firebaseResponse.user;
@@ -96,8 +86,8 @@ const SignInButton = (props) => {
         };
 
         const response = await postTo(`${BACKEND_HOST}${SIGN_IN_URL}`,
-                                      requestBody,
-                                      idToken);
+            requestBody,
+            idToken);
 
         if (response.error) {
             SweetAlert2.fire({
